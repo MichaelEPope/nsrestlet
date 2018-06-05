@@ -1,0 +1,29 @@
+{
+  "name": "nsrestlet",
+  "version": "1.0.0",
+  "description": "A module to help you create and use connections to your Netsuite Restlets.",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "keywords": [
+    "netsuite",
+    "restlet",
+    "oauth",
+    "token",
+    "based",
+    "authentication",
+    "tba",
+    "ns"
+  ],
+  "author": "Michael E. Pope",
+  "license": "MIT",
+  "dependencies": {
+    "oauth-1.0a": "^1.0.1",
+    "qs": "^6.0.0",
+    "request": "^2.0.0"
+  },
+  "devDependencies": {
+    "mocha": "^5.2.0"
+  }
+}
