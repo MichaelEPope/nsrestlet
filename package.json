@@ -1,6 +1,6 @@
 {
   "name": "nsrestlet",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A module to help you create and use connections to your Netsuite Restlets.",
   "main": "index.js",
   "scripts": {
