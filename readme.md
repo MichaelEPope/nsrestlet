@@ -13,7 +13,6 @@ Connecting to Netsuite RESTlets with external programs can be really hard.
 This module will make your life easier.  It's as easy as:
 
 ```javascript
-
 var nsrestlet = require('ns-restlet');
 
 //For OAuth (we can do NLAuth too, see later in documentation):
@@ -85,7 +84,9 @@ You also need to provide some URL settings.  The URL settings can be formatted i
 The first is by using a direct URL.  This is listed on the script deployment page in Netsuite as the **EXTERNAL URL** field:
 
 `````js
-var urlSettings = { url: "https://12345.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=1&deploy=1 };
+var urlSettings = {
+    url: "https://12345.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=1&deploy=1"
+};
 `````
 The second way is to provide the script id and deployment id (either the string version or number version).  These can be found on the script and script deployment pages in Netsuite in the **ID** field:
 `````js
@@ -119,7 +120,6 @@ You can read about the other two further down in the Error Handling section.
 Once you've created the account settings and url settings objects, pass them into `````createLink()`````:
 
 `````javascript
-
 var invoice_link = nsrestlet.createLink(accountSettings, urlSettings);
 `````
 
@@ -162,7 +162,9 @@ For `````GET````` and `````DELETE````` requests, the payload is added to the URL
 
 For `````POST````` and `````PUT````` requests, the payload is sent in the request body instead.  So with with `````invoice_link.post({tranid:12345});`````, the module would call:
 
- `````https://ACCOUNTID.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=SCRIPTID&deploy=DEPLOYID`````.
+ `````
+ https://ACCOUNTID.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=SCRIPTID&deploy=DEPLOYID
+ `````
 
 Regardless of the HTTP method, you can recieve the data in Netsuite directly as the first paramater:
 
