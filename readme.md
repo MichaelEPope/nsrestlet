@@ -160,7 +160,7 @@ For `````GET````` and `````DELETE````` requests, the payload is added to the URL
 
  `````
  https://ACCOUNTID.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=SCRIPTID&deploy=DEPLOYID&id=12345
- `````.
+ `````
 
 For `````POST````` and `````PUT````` requests, the payload is sent in the request body instead.  So with with `````invoice_link.post({tranid:12345});`````, the module would call:
 
