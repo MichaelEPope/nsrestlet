@@ -1,10 +1,10 @@
 # NSRestlet
 
-A module which makes connecting to Netsuite Restlets using OAuth and NLAuth much easier.
+A module which makes connecting to Netsuite RESTlets using OAuth and NLAuth much easier.
 
 ## Why NSRestlet?
 
-Connecting to Netsuite Restlets with external programs can be really hard.
+Connecting to Netsuite RESTlets with external programs can be really hard.
 * NLAuth has to deal with password changes and two factor authentication problems (which will soon be required on high-permission accounts)
 * OAuth is really hard to set up
 * Netsuite errors for debugging NLAuth and OAuth applications are somewhat vauge
@@ -154,7 +154,7 @@ invoice_link.post({tranid:24680})
 //invoice_link also has .put() and .delete() methods
 `````
 
-## How Data is Transferred
+## Passing Data to the RESTlet
 
 For `````GET````` and `````DELETE````` requests, the payload is added to the URL as a query string.  For example, with `````invoice_link.get({tranid:12345});````` the module would call:
 
