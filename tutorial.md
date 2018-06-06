@@ -113,7 +113,7 @@ function test(body)
 
 8. The fields you will need to use if you use this module will be one of the following (you won't need both):
 
-    * The __Script Id__ (which you should see immedately) and the __Deployment Id__ (which you can see by going to the __Deployments__ subtab).
-    * The __External URL__ (go to the __Deployments__ subtab and click on the link to the actual deployment.  It should be directly visible on the deployment).
+* The __Script Id__ (which you should see immedately) and the __Deployment Id__ (which you can see by going to the __Deployments__ subtab).
+* The __External URL__ (go to the __Deployments__ subtab and click on the link to the actual deployment.  It should be directly visible on the deployment).
 
 And that's it.  You should be set up and ready to go.  Why don't you go take a look at this module and see how you can integrate it into an application.
