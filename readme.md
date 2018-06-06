@@ -241,3 +241,9 @@ This module was made after looking at a lot of good code.  Here is some the code
 * [suiteplus](https://github.com/suiteplus) has an excellent module called [nscabinet](https://github.com/suiteplus/nscabinet), which helps upload and download files from Netsuite as a gulp task.  Reading through it helped me understand how to use the `````querystring````` module and NLAuth.
 * Marty Zigman has a [good sample](http://blog.prolecto.com/2017/10/14/download-netsuite-oauth-token-based-authentication-sample-node-js-program/) that got me pointed in the right direction.
 * These excellent modules are used in this project -   [request](https://www.npmjs.com/package/request), [oauth-1.0a](https://www.npmjs.com/package/oauth-1.0a) (version 1.0.1), and [qs](https://www.npmjs.com/package/qs).
+
+## Version Changes
+
+1.0.1 - Just an update to the readme.  No code changes.
+
+1.0.0 - Initial Commit
