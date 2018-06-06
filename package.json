@@ -25,5 +25,9 @@
   },
   "devDependencies": {
     "mocha": "^5.2.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/MichaelEPope/nsrestlet.git"
   }
 }
