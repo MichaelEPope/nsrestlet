@@ -223,7 +223,7 @@ module.exports = {
                     {
                         //stick the necessary stuff in the header
                         var headers = { Authorization: '' }
-                        headers.Authorization += 'NLAuth nlauth_account=' + accountSettings.accountID;
+                        headers.Authorization += 'NLAuth nlauth_account=' + accountSettings.accountId;
                         headers.Authorization += ',nlauth_email=' + accountSettings.email;
                         headers.Authorization += ',nlauth_signature=' + accountSettings.password;
 
@@ -270,7 +270,17 @@ module.exports = {
                             {
                                 if(repeats > 0)
                                 {
-                                    makeCall(repeats - 1);
+                                    if(urlSettings.backoff && urlSettings.retries)
+                                    {
+                                        setTimeout(function()
+                                        {
+                                            makeCall(repeats - 1);
+                                        }, backoff * (urlSettings.retries - (repeats + 1)));
+                                    }
+                                    else
+                                    {
+                                        makeCall(repeats - 1);
+                                    }
                                 }
                                 else
                                 {
@@ -291,7 +301,12 @@ module.exports = {
                     });
                 }
                 //make the call to the function - we can retry up to three times
-                makeCall(3);
+                var amount_of_calls = 3;
+                if(urlSettings.retries)
+                {
+                    amount_of_calls = urlSettings.retries;
+                }
+                makeCall(amount_of_calls);
             }
         }
 

@@ -101,7 +101,7 @@ var urlSettings = {
     deployment: 1
 }
 `````
-You can also optinally set the `````content-type````` of the request by giving your url settings a `````contentType````` field.  If the field isn't provided, the request defaults to `````application/json````` (which is what you'll want most of the time).
+There are three additional optional fields.  You can set the `````content-type````` of the request by giving your url settings a `````contentType````` field.  If the field isn't provided, the request defaults to `````application/json````` (which is what you'll want most of the time).
 
 `````js
 var urlSettings = {
@@ -111,6 +111,8 @@ var urlSettings = {
 `````
 
 (Note that with `````application/json`````, Netsuite returns information in a different format based on the request type.  `````GET````` always returns data as a string. `````POST````` or `````PUT````` returns data as a direct JSON object.  You can get the hang of this by trying it out.)
+
+You can read about the other two further down in the Error Handling section. 
 
 ## Creating a Link
 
@@ -197,13 +199,31 @@ invoice_link.post({tranid:12345}, function(error, body)
 
 This module divides errors into two categories - retryable and non-retryable.
 
-Retryable errors are errors related to rate limiting or other conditions where the restlet didn't recieve the request at all.  If this module  recieves these errors, it'll retry the connection up to three times.  If it can't connect, you'll recieve the error as is normal for callbacks (`````error````` paramater) or promises (`````.catch()`````).
+Retryable errors are errors related to rate limiting or other conditions where the restlet didn't recieve the request at all.  If this module  recieves these errors, it'll retry the connection up to 3 times (by default).  If it can't connect, you'll recieve the error as is normal for callbacks (`````error````` paramater) or promises (`````.catch()`````).
 
 Non-Retryable errors are recieved as normal through callbacks or promises without retrying the endpoint at all.
+
+You can customize the options for how this module will retry on retryable errors by adding fields to the __URLSettings__ object.
+
+`````javascript
+var urlSettings = {
+        script: 142,
+        deployment: 1,
+        contentType: 'text/html',
+        retries: 5,     //specifies the number of retries, default is 3
+        backoff: 120 }  //specifies the multiplicative backoff, default is 0
+`````
+The retries field should be pretty obvious.  For backoff, it specifies how many miliseconds of a delay you want in the case of a failiure.
+
+For example, if the backoff was 120, the module would delay 120 millseconds if the first request failed, and 240 millseconds if the second request failed (and so on).
 
 ## Need more Customization?
 
 [Here is some basic code you can start with.](https://stackoverflow.com/questions/50611578/netsuite-oauth-not-working/50651498)  It provides a good base for a custom solution.
+
+## Want to help with Development?
+
+Feel free.  I have included a VERY basic test.js file with the module.  Run `````npm install mocha -g````` to get the test utility loadead and then run `````npm test`````.  You may see occasional errors due to timeouts, but that isn't related to the module's functionality.
 
 ## Credits
 

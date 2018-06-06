@@ -19,9 +19,9 @@
   "author": "Michael E. Pope",
   "license": "MIT",
   "dependencies": {
-    "oauth-1.0a": "^1.0.1",
+    "oauth-1.0a": "1.0.1",
     "qs": "^6.0.0",
-    "request": "^2.0.0"
+    "request": "^2.1.0"
   },
   "devDependencies": {
     "mocha": "^5.2.0"
