@@ -229,6 +229,10 @@ For example, if the backoff was 120, the module would delay 120 millseconds if t
 
 Feel free.  I have included a VERY basic test.js file with the module.  Run `````npm install mocha -g````` to get the test utility loadead and then run `````npm test`````.  You may see occasional errors due to timeouts, but that isn't related to the module's functionality.
 
+## Licensce
+
+MIT (see LICENSE file).  But we love contributions and suggestions.  Please feel free to suggest improvements.
+
 ## Credits
 
 This module was made after looking at a lot of good code.  Here is some the code that inspired this module and effected how it was designed:
