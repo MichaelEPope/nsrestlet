@@ -13,7 +13,7 @@ Connecting to Netsuite RESTlets with external programs can be really hard.
 This module will make your life easier.  It's as easy as:
 
 ```javascript
-var nsrestlet = require('ns-restlet');
+var nsrestlet = require('nsrestlet');
 
 //For OAuth (we can do NLAuth too, see later in documentation):
 var accountSettings = {
@@ -24,8 +24,8 @@ var accountSettings = {
     consumerSecret: "PUT YOUR CONSUMER SECRET HERE" };
 var urlSettings = {url: 'https://ACCOUNTID.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=SCRIPTID&deploy=DEPLOYID'}
 
-//crate a link
-var myInvoices = nsRestlet.createLink(accountSettings, urlSettings)
+//create a link
+var myInvoices = nsrestlet.createLink(accountSettings, urlSettings)
 //then call get, post, put, or delete
 myInvoices.get({id: '12345'}, function(error, body)
 {
