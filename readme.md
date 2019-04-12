@@ -33,15 +33,15 @@ myInvoices.get({id: '12345'}, function(error, body)
 });
 
 ```
-That may look a bit intimidating, but trust me, it's not.  [We also have a tutorial on how to set up OAuth with Netsuite](./tutorial.md), which makes things much easier, even if you aren't familiar with OAuth.
+That may look a bit intimidating, but trust me, it's not.  [We also have a tutorial on how to set up OAuth with Netsuite](./TUTORIAL.md), which makes things much easier, even if you aren't familiar with OAuth.
 
 ## Setting Things Up
 
 Follow these four steps:
 
-1.  [Read this tutorial](./tutorial.md).  It contains instructions on how to set up your Netsuite environment for OAuth or NLAuth.
+1.  [Read this tutorial](./TUTORIAL.md).  It contains instructions on how to set up your Netsuite environment for OAuth or NLAuth.
 
-2.  [Install Node.JS](https://nodejs.org) (if you haven't already).  This module will work with any version as long as it's not too old.
+2.  [Install Node.JS](https://nodejs.org).  This module should work with any version that isn't too old.
 
 3.  Open the command line and change your directory (using `````cd`````) to your project.
 
@@ -102,18 +102,7 @@ var urlSettings = {
     deployment: 1
 }
 `````
-There are three additional optional fields.  You can set the `````content-type````` of the request by giving your url settings a `````contentType````` field.  If the field isn't provided, the request defaults to `````application/json````` (which is what you'll want most of the time).
-
-`````js
-var urlSettings = {
-        script: 142,
-        deployment: 1,
-        contentType: 'text/html' }   //defaults to application/json if no contentType is provided
-`````
-
-(Note that with `````application/json`````, Netsuite returns information in a different format based on the request type.  `````GET````` always returns data as a string. `````POST````` or `````PUT````` returns data as a direct JSON object.  You can get the hang of this by trying it out.)
-
-You can read about the other two further down in the Error Handling section. 
+There are two additional optional fields.  You can read about them further down in the Error Handling section. 
 
 ## Creating a Link
 
@@ -156,29 +145,17 @@ invoice_link.post({tranid:24680})
 
 ## Passing Data to the RESTlet
 
-For `````GET````` and `````DELETE````` requests, the payload is added to the URL as a query string.  For example, with `````invoice_link.get({tranid:12345});````` the module would call:
-
- `````
- https://ACCOUNTID.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=SCRIPTID&deploy=DEPLOYID&id=12345
- `````
-
-For `````POST````` and `````PUT````` requests, the payload is sent in the request body instead.  So with with `````invoice_link.post({tranid:12345});`````, the module would call:
-
- `````
- https://ACCOUNTID.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=SCRIPTID&deploy=DEPLOYID
- `````
-
-Regardless of the HTTP method, you can recieve the data in Netsuite directly as the first paramater:
+Regardless of the HTTP methodn you use, you can recieve the data in Netsuite directly as the first paramater:
 
 `````javascript
 function restlet_called(body)
 {
   //you recieve the payload as 'body'
   
-  //if you are using application/json, you can send data back to your application from Netsuite like this:
+  //if your application likes JSON, you can send data back to it like this:
   return {message: "I got your message", data: body}
   
-  //...otherwise you should probably send it as a string.
+  //...otherwise send it as a string using JSON.stringify()
 }
 `````
 
@@ -213,7 +190,6 @@ You can customize the options for how this module will retry on retryable errors
 var urlSettings = {
         script: 142,
         deployment: 1,
-        contentType: 'text/html',
         retries: 5,     //specifies the number of retries, default is 3
         backoff: 120 }  //specifies the multiplicative backoff, default is 0
 `````
@@ -240,10 +216,8 @@ This module was made after looking at a lot of good code.  Here is some the code
 * [bknight's](https://github.com/bknights) response in [this thread](https://stackoverflow.com/questions/50611578/netsuite-oauth-not-working/50651498) is excellent - the idea of a facade for four HTTP codes works really well.  The error handling and retrying capabilities also comes from looking at his code.  He was generous enough to post a full example of what was working on his end.
 * [suiteplus](https://github.com/suiteplus) has an excellent module called [nscabinet](https://github.com/suiteplus/nscabinet), which helps upload and download files from Netsuite as a gulp task.  Reading through it helped me understand how to use the `````querystring````` module and NLAuth.
 * Marty Zigman has a [good sample](http://blog.prolecto.com/2017/10/14/download-netsuite-oauth-token-based-authentication-sample-node-js-program/) that got me pointed in the right direction.
-* These excellent modules are used in this project -   [request](https://www.npmjs.com/package/request), [oauth-1.0a](https://www.npmjs.com/package/oauth-1.0a) (version 1.0.1), and [qs](https://www.npmjs.com/package/qs).
+* These excellent modules are used in this project -   [request](https://www.npmjs.com/package/request), [oauth-1.0a](https://www.npmjs.com/package/oauth-1.0a), and [qs](https://www.npmjs.com/package/qs).
 
 ## Version Changes
 
-1.0.1 - Just an update to the readme.  No code changes.
-
-1.0.0 - Initial Commit
+Please see the [Changelog](./CHANGELOG.md)

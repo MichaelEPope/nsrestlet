@@ -1,21 +1,61 @@
 /*
     IMPORTED MODULES
 
-    We use these three modules.
+    We use these four modules.
     
-    Request is a pretty common module which simplifies http.request().
+    Request is a pretty common module which simplifies http.request().  It may be replaced in the
+    future as the version we are using is being deprecated.
 
-    Oauth-1.0a is a module which does a lot of the encoding work for Oauth for us.  It's really
-    important that we use the 1.01 version, for some reason the newer version isnt working.
-    At some points we may want to figure out how to get the newer version working.
+    Oauth-1.0a is a module which does a lot of the encoding work for Oauth for us.  We used to use
+    the 1.01 version, which had much simpler code, but we've gotten the newer version working now.
+    As this module uses the crypto module, we now won't have to worry about the crypto going out of date,
+    however, we will now need to emit an error now when the Node.JS they are using is built without crypto.
 
     QS turns JSON objects into query strings, for example, {id:12345, record:'salesord'} becomes
     'id=12345&record=salesord'.  This is useful for GET and DELETE requests
+
+    Crypto is just the standard NodeJS crypto module built into the standard library
 */
 const request = require('request');
 const OAuth = require('oauth-1.0a');
 const qs = require('qs');
 
+//On very rare occasions, NodeJS can be built without the crypto module.  I dont' want to have to manage
+//the security of cryptographic modules, so I'm just going to let NodeJS handle it and throw an error if
+//the module doesn't exist (I can always direct users to version 1.0.1 of this module if they need it)
+var crypto;
+/* istanbul ignore next */      //we tell our code coverage tool to ignore this because it's really hard to test - we'd have to build Node.JS without Crypto
+try         {   crypto = require('crypto');     }
+catch(err)  {   throw new Error("This version of nsrestlet requires a version of Node.JS that supports crypto().  Get one that does or install nsrestlet version 1.0.1.")    }
+
+/*
+    HELPER FUNCTIONS
+
+    We use these functions throughout this file.  This just keeps them separated.
+
+    The hash_function_sha256 function just performs the sha256 hash on a string.  It's written
+    exactly like it's described in the oauth-1.0a documentaiton, so it's pretty simple.
+
+    The has_error_message function checks to see if any of a list of errors are in an error
+    message.  Pretty simple.
+*/
+
+function hash_function_sha256(base_string, key)
+{
+    return crypto.createHmac('sha256', key).update(base_string).digest('base64');
+}
+
+function has_error_message(error_message, errors)
+{
+    for(var index = 0; index < errors.length; index++)
+    {
+        if(error_message.indexOf(errors[index]) != -1)
+        {
+            return true;
+        }
+    }
+    return false;
+}
 
 /*
     EXPORT
@@ -34,7 +74,7 @@ module.exports = {
     createLink: function(accountSettings, urlSettings)
     {
 
-        var authType, consumer, oauth, baseUrl;     //some variables we may need to use in the process
+        var authType, oauth, baseUrl;     //some variables we may need to use in the process
 
         /*
             ACCOUNT SETTINGS
@@ -83,10 +123,11 @@ module.exports = {
             //the basic oauth object needs the consumer token and key, as well as the encoding type we are using
             oauth = OAuth({
                 consumer: {
-                    public: accountSettings.consumerKey,
+                    key: accountSettings.consumerKey,
                     secret: accountSettings.consumerSecret
                 },
-                signature_method: 'HMAC-SHA256'
+                signature_method: 'HMAC-SHA256',
+                hash_function: hash_function_sha256
             })
         }
 
@@ -113,13 +154,6 @@ module.exports = {
             {
                 script: SCRIPTID,
                 deployment: DEPLOYID
-            }
-
-            In addition, in the URL Settings, you can specify the content type you want to use for the response.  By default,
-            this is JSON since I imagine most people are using Netsuite Restlet APIs for returning JSON.
-
-            {
-                contentType: 'application/json'
             }
         */
 
@@ -168,6 +202,8 @@ module.exports = {
         */
         function callRestlet(method, payload, callback)
         {
+            var makeCall;   //we'll be creating a function, and need a variable for it
+
             //if we don't have a callback, we create a promise that encapsulates this function
             //we may return a promise to the user, but internally we just use the callback form
             //when actually resolving things, which keeps all the code together in one
@@ -191,8 +227,6 @@ module.exports = {
             else                            //if there is a callback, we can proceed as normally
             {
 
-                var headers;                //we will use this variable later
-
                 var url = baseUrl;          //if we are doing get or delete, we need to encode the payload into a query string
                 if(method == "GET" || method == "DELETE")
                 {
@@ -202,7 +236,7 @@ module.exports = {
                 //this is the inner function that contains all of the meaty code
                 //it is called at the end of the function for the first time, and can be recalled
                 //but only does so if certain errors are recieved
-                function makeCall(repeats)
+                makeCall = function makeCall(repeats)
                 {
                     if(authType == "OAuth")     //if we are doing OAuth
                     {
@@ -210,7 +244,7 @@ module.exports = {
                         var authorization = oauth.authorize({
                             url: url,
                             method: method  },{
-                            public: accountSettings.tokenKey,
+                            key: accountSettings.tokenKey,
                             secret: accountSettings.tokenSecret
                         })
 
@@ -234,15 +268,8 @@ module.exports = {
                         }
                     }
 
-                    //most of the time, people will be wanting to use json, but we have the option for them not to
-                    if(urlSettings.contentType)
-                    {
-                        headers['content-type'] = urlSettings.contentType;
-                    }
-                    else
-                    {
-                        headers['content-type'] = 'application/json';
-                    }
+                    //we are using application/json, which will pretty much always work for what people want
+                    headers['content-type'] = 'application/json';
 
                     //set up the request settings
                     var requestSettings = {
@@ -260,13 +287,40 @@ module.exports = {
                     //make the actual request
                     request(requestSettings, function(error, response, body)
                     {
+                        //we need to do some pre-formatting of error and body
+                        //if there was a regular error, get the error message
+                        var actual_error, actual_body, error_message;
+
+                        /* istanbul ignore if  */      //we tell our code coverage tool to ignore this because it's really hard to test - it's hard to cause a network error without a lot of work
                         if(error)
                         {
-                            error_message = error.message || JSON.stringify(error)
+                            actual_error = error;
+                            error_message = actual_error.message || JSON.stringify(actual_error);
+                        }
+                        //otherwise if there wasn't...
+                        else
+                        {
+                            actual_body = body;
+                            //turn the body into JSON
+                            if(actual_body != '' && (method == "GET" || method == "DELETE"))
+                            {
+                                actual_body = JSON.parse(actual_body);
+                            }
+                            //and if there was a Netsuite error, get the error message
+                            if(actual_body.error && actual_body.error.code)
+                            {
+                                actual_error = actual_body.error;
+                                error_message = actual_error.code;
+                            }
+                        }
+
+                        //if there was an error
+                        if(error_message)
+                        {
                             //if we got an error that we can try again, and we haven't reached our repeat limit, try again
                             //otherwise throw an error
                             //largely gotten from bknight's code (see readme)
-                            if(['ECONNRESET', 'ESOCKETTIMEDOUT','ETIMEDOUT', 'SSS_REQUEST_LIMIT_EXCEEDED'].indexOf(error_message) != -1)
+                            if(has_error_message(error_message, ['ECONNRESET', 'ESOCKETTIMEDOUT','ETIMEDOUT', 'SSS_REQUEST_LIMIT_EXCEEDED']))
                             {
                                 if(repeats > 0)
                                 {
@@ -275,7 +329,7 @@ module.exports = {
                                         setTimeout(function()
                                         {
                                             makeCall(repeats - 1);
-                                        }, backoff * (urlSettings.retries - (repeats + 1)));
+                                        }, urlSettings.backoff * (urlSettings.retries - (repeats + 1)));
                                     }
                                     else
                                     {
@@ -284,19 +338,19 @@ module.exports = {
                                 }
                                 else
                                 {
-                                    callback(error, body);
+                                    callback(actual_error);
                                 }
                             }
                             else
                             {
-                                callback(error, body);
+                                callback(actual_error);
                             }
                         }
                         else
                         {
                             //we got a correct response - return the body
                             //(because we don't care about the headers and all that stuff, just the data)
-                            callback(error, body);
+                            callback(undefined, actual_body);
                         }
                     });
                 }

@@ -2,9 +2,10 @@
   "name": "nsrestlet",
   "version": "1.0.1",
   "description": "A module to help you create and use connections to your Netsuite Restlets.",
-  "main": "index.js",
+  "main": "nsrestlet.js",
   "scripts": {
-    "test": "mocha"
+    "test": "nyc --reporter=html --reporter=text mocha --timeout=50000",
+    "coverage": "nyc report --reporter=text-lcov | coveralls"
   },
   "keywords": [
     "netsuite",
@@ -19,15 +20,25 @@
   "author": "Michael E. Pope",
   "license": "MIT",
   "dependencies": {
-    "oauth-1.0a": "1.0.1",
+    "oauth-1.0a": "^2.2.5",
     "qs": "^6.0.0",
-    "request": "^2.1.0"
+    "request": "^2.88.0"
   },
   "devDependencies": {
-    "mocha": "^5.2.0"
+    "coveralls": "^3.0.3",
+    "env2": "^2.2.2",
+    "eslint": "^5.16.0",
+    "mocha": "^5.2.0",
+    "nyc": "^13.3.0"
   },
   "repository": {
     "type": "git",
     "url": "git://github.com/MichaelEPope/nsrestlet.git"
+  },
+  "nyc": {
+    "exclude": [
+      "secret.js",
+      "test.js"
+    ]
   }
 }
