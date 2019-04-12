@@ -5,7 +5,8 @@
   "main": "nsrestlet.js",
   "scripts": {
     "test": "nyc --reporter=html --reporter=text mocha --timeout=50000",
-    "coverage": "nyc report --reporter=text-lcov | coveralls"
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "lint": "eslint nsrestlet.js"
   },
   "keywords": [
     "netsuite",
