@@ -4,12 +4,12 @@ var nsrestlet = require('./nsrestlet.js');  //nsretlet module (which we are test
 try
 {
     require('env2')('.env');
-    var secret = JSON.parse(process.env.SECRET);
 }
 catch(err)
 {
     //do nothing, this only happens in a travis-ci enviroment
 }
+var secret = JSON.parse(process.env.SECRET);
 
 var requests = [];
 
