@@ -1,7 +1,15 @@
 var assert = require('assert');             //node's basic assertion library
 var nsrestlet = require('./nsrestlet.js');  //nsretlet module (which we are testing)
-require('env2')('.env');
-var secret = JSON.parse(process.env.SECRET);
+
+try
+{
+    require('env2')('.env');
+    var secret = JSON.parse(process.env.SECRET);
+}
+catch(err)
+{
+    //do nothing, this only happens in a travis-ci enviroment
+}
 
 var requests = [];
 
