@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/mono-blue.min.css" integrity="sha256-yU6KUTi38Ir0YRHl6bqPzZh1TRgeNGPeBpECecxrDz0=" crossorigin="anonymous" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+</head>
+<body>
+  <div id="app">
+    <v-app>
+        <v-card class="pa-3 pl-4">
+            <div class="display-3">NSRestlet</div>
+            <div class="headline"><i>Making connecting to Netsuite Restlets easy.</i></div>
+        </v-card>
+        <v-card class="pa-3">
+          
+          <div class="headline"><i>Step 1:  Import NSRestlet</i></div>
+          <v-container grid-list-md>
+            <v-layout row wrap>
+              <v-flex xs12>
+                <pre><code class="javascript">
+  var nsrestlet = require('nsrestlet');
+                </code></pre>
+              </v-flex>
+            </v-layout>
+          </v-container>
+
+          <div class="headline"><i>Step 2:  Use OAuth or NLAuth</i></div>
+          <v-container grid-list-md>
+            <v-layout row wrap>
+              <v-flex md6 xs12>
+                <pre><code class="javascript">
+  var accountSettings = {
+    accountId: "PUT YOUR ACCOUNT ID HERE",
+    tokenKey: "PUT YOUR TOKEN KEY HERE",
+    tokenSecret: "PUT YOUR TOKEN SECRET HERE",
+    consumerKey: "PUT YOUR CONSUMER KEY HERE",
+    consumerSecret: "PUT YOUR CONSUMER SECRET HERE"
+  };
+                </code></pre>
+              </v-flex>
+              <v-flex md6 xs12>
+                <pre><code class="javascript">
+  var accountSettings = {
+    accountId: "PUT YOUR ACCOUNT ID HERE",
+    email: "PUT YOUR EMAIL HERE",
+    password: "PUT YOUR PASSWORD HERE",
+    role: "PUT YOUR ROLE KEY HERE"
+  };
+
+                </code></pre>
+              </v-flex>
+            </v-layout>
+          </v-container>
+
+
+
+          <div class="headline"><i>Step 3:  Set a URL or Script & Deployment IDs</i></div>
+          <v-container grid-list-md>
+            <v-layout row wrap>
+              <v-flex xs12>
+                <pre><code class="javascript">
+  var urlSettings = {
+    url: "https://12345.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=1&deploy=1"
+  };
+                </code></pre>
+              </v-flex>
+              <v-flex md6 xs12>
+                <pre><code class="javascript">
+  var urlSettings = {
+    script: "customscript_test_rlet",
+    deployment: "customdeploy_test_rlet"
+  }
+                </code></pre>
+              </v-flex>
+              <v-flex md6 xs12>
+                <pre><code class="javascript">
+  var urlSettings = {
+    script: 142,
+    deployment: 1
+  }
+                </code></pre>
+              </v-flex>
+            </v-layout>
+          </v-container>
+
+          <div class="headline"><i>Step 4:  Recieve Data with Callbacks or Promises</i></div>
+          <v-container grid-list-md>
+            <v-layout row wrap>
+              <v-flex md6 xs12>
+                <pre><code class="javascript">
+  var myInvoices = nsrestlet.createLink(accountSettings, urlSettings);
+
+  myInvoices.get({id: '12345'}, function(error, body)
+  {
+      console.log(body);
+  });
+
+
+
+
+                </code></pre>
+              </v-flex>
+              <v-flex md6 xs12>
+                <pre><code class="javascript">
+  var myInvoices = nsrestlet.createLink(accountSettings, urlSettings);
+
+  myInvoices.get({id: '12345'}).then(function(body)
+  {
+      console.log(body);
+  })
+  .catch(function(error)
+  {
+      console.log(error);
+  });
+                </code></pre>
+              </v-flex>
+            </v-layout>
+          </v-container>
+        </v-card>
+
+        <v-card class="pa-3">
+          <div class="headline"><i>Wanna give it a try? </i></div>
+          <v-container grid-list-md>
+            <v-layout row wrap>
+              <v-flex xs12>
+                <pre><code class="javascript">
+  npm install --save nsrestlet
+                </code></pre>
+              </v-flex>
+            </v-layout>
+          </v-container>
+          <v-container grid-list-md text-xs-center>
+            <v-layout row wrap>
+              <v-flex xs12>
+                <div>
+                  <v-btn large color="blue" href="https://github.com/MichaelEPope/nsrestlet">Documentation</v-btn>
+                </div>
+              </v-flex>
+            </v-layout>
+          </v-container>
+          <v-container grid-list-md text-xs-center>
+            <v-layout row wrap>
+              <v-flex xs12>
+                Last Updated on 4/16/2019
+              </v-flex>
+            </v-layout>
+          </v-container>
+        </v-card>
+
+
+    </v-app>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js" integrity="sha256-aYTdUrn6Ow1DDgh5JTc3aDGnnju48y/1c8s1dgkYPQ8=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/languages/javascript.min.js" integrity="sha256-aP+yiN6DRVl0yk7Pb9pGIOKVDSyIEtFWTduEEteeD+0=" crossorigin="anonymous"></script>
+  <script>
+    hljs.initHighlightingOnLoad();
+    new Vue({ el: '#app' })
+  </script>
+</body>
+</html>

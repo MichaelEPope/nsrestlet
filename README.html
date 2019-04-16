@@ -1,0 +1,169 @@
+<h1 id="nsrestlet">NSRestlet</h1>
+<p>A module which makes connecting to Netsuite RESTlets using OAuth and NLAuth much easier.</p>
+<p><a href="https://nodei.co/npm/nsrestlet/"><img src="https://nodei.co/npm/nsrestlet.png?downloads=true&downloadRank=true&stars=true" alt="npm package" /></a></p>
+<p><a href="https://snyk.io/test/github/dwyl/hapi-auth-jwt2?targetFile=package.json"><img src="https://snyk.io/test/github/dwyl/hapi-auth-jwt2/badge.svg?targetFile=package.json" alt="Known Vulnerabilities" /></a>
+<a href="https://travis-ci.com/MichaelEPope/nsrestlet"><img src="https://travis-ci.com/MichaelEPope/nsrestlet.svg?branch=master" alt="Build Status" /></a>
+<a href="https://coveralls.io/github/MichaelEPope/nsrestlet?branch=master"><img src="https://coveralls.io/repos/github/MichaelEPope/nsrestlet/badge.svg?branch=master" alt="Coverage Status" /></a>
+<a href="http://hits.dwyl.io/MichaelEPope/nsrestlet"><img src="http://hits.dwyl.io/MichaelEPope/nsrestlet.svg" alt="HitCount" /></a></p>
+<h2 id="whynsrestlet">Why NSRestlet?</h2>
+<p>Connecting to Netsuite RESTlets with external programs can be really hard.</p>
+<ul>
+<li>NLAuth has to deal with password changes and two factor authentication problems (which will soon be required on high-permission accounts)</li>
+<li>OAuth is really hard to set up</li>
+<li>Netsuite errors for debugging NLAuth and OAuth applications are somewhat vauge</li>
+<li>The examples they have on SuiteAnswers don't always seem to work</li>
+</ul>
+<p>This module will make your life easier.  It's as easy as:</p>
+<pre><code class="javascript language-javascript">var nsrestlet = require('nsrestlet');
+
+//For OAuth (we can do NLAuth too, see later in documentation):
+var accountSettings = {
+    accountId: "PUT YOUR ACCOUNT ID HERE",
+    tokenKey: "PUT YOUR TOKEN KEY HERE",
+    tokenSecret: "PUT YOUR TOKEN SECRET HERE",
+    consumerKey: "PUT YOUR CONSUMER KEY HERE",
+    consumerSecret: "PUT YOUR CONSUMER SECRET HERE" };
+var urlSettings = {url: 'https://ACCOUNTID.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=SCRIPTID&amp;deploy=DEPLOYID'}
+
+//create a link
+var myInvoices = nsrestlet.createLink(accountSettings, urlSettings)
+//then call get, post, put, or delete
+myInvoices.get({id: '12345'}, function(error, body)
+{
+    console.log(body);
+});
+</code></pre>
+<p>That may look a bit intimidating, but trust me, it's not.  <a href="./TUTORIAL.md">We also have a tutorial on how to set up OAuth with Netsuite</a>, which makes things much easier, even if you aren't familiar with OAuth.</p>
+<h2 id="settingthingsup">Setting Things Up</h2>
+<p>Follow these four steps:</p>
+<ol>
+<li><p><a href="./TUTORIAL.md">Read this tutorial</a>.  It contains instructions on how to set up your Netsuite environment for OAuth or NLAuth.</p></li>
+<li><p><a href="https://nodejs.org">Install Node.JS</a>.  This module should work with any version that isn't too old.</p></li>
+<li><p>Open the command line and change your directory (using <code>cd</code>) to your project.</p></li>
+<li><p>Then run:</p></li>
+</ol>
+<pre><code>npm install nsrestlet
+</code></pre>
+<h2 id="settingupaccountsettings">Setting Up Account Settings</h2>
+<p>In order to create a connection to Netsuite, you need to provide some account settings.</p>
+<p>For OAuth, the acount settings will look like this:</p>
+<pre><code class="js language-js">//all fields are required
+var accountSettings = {
+    accountId: "PUT YOUR ACCOUNT ID HERE",
+    tokenKey: "PUT YOUR TOKEN KEY HERE",
+    tokenSecret: "PUT YOUR TOKEN SECRET HERE",
+    consumerKey: "PUT YOUR CONSUMER KEY HERE",
+    consumerSecret: "PUT YOUR CONSUMER SECRET HERE" }; 
+</code></pre>
+<p>For NLAuth, the account settings look like this:</p>
+<pre><code class="js language-js">//all fields except role are required
+var accountSettings = {
+    accountId: "PUT YOUR ACCOUNT ID HERE",
+    email: "PUT YOUR EMAIL HERE",
+    password: "PUT YOUR PASSWORD HERE",
+    role: "PUT YOUR ROLE KEY HERE" };   //optional, but reccomended
+</code></pre>
+<h2 id="settingupurlsettings">Setting Up URL Settings</h2>
+<p>You also need to provide some URL settings.  The URL settings can be formatted in one of two ways.</p>
+<p>The first is by using a direct URL.  This is listed on the script deployment page in Netsuite as the <strong>EXTERNAL URL</strong> field:</p>
+<pre><code class="js language-js">var urlSettings = {
+    url: "https://12345.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=1&amp;deploy=1"
+};
+</code></pre>
+<p>The second way is to provide the script id and deployment id (either the string version or number version).  These can be found on the script and script deployment pages in Netsuite in the <strong>ID</strong> field:</p>
+<pre><code class="js language-js">//You can use the string version...
+var urlSettings = {
+    script: "customscript_test_rlet",
+    deployment: "customdeploy_test_rlet"
+}
+
+//...or the number version
+var urlSettings = {
+    script: 142,
+    deployment: 1
+}
+</code></pre>
+<p>There are two additional optional fields.  You can read about them further down in the Error Handling section. </p>
+<h2 id="creatingalink">Creating a Link</h2>
+<p>Once you've created the account settings and url settings objects, pass them into <code>createLink()</code>:</p>
+<pre><code class="javascript language-javascript">var invoice_link = nsrestlet.createLink(accountSettings, urlSettings);
+</code></pre>
+<p>This link allows you to call a restlet endpoint in an easy, clean, and repeatable way.  It also allows you to reuse the account settings to connect to other restlets.</p>
+<h2 id="callingtheendpoint">Calling the Endpoint</h2>
+<p>Once you have a link, you can directly call the four basic HTTP methods (<code>GET</code>, <code>POST</code>, <code>PUT</code>, <code>DELETE</code>).</p>
+<p>The first paramater you provide is the data which will be sent to the restlet.</p>
+<p>The second paramater is optional.  You can either provide a callback which will be called when the data is returned, or not provide one (in which case, a promise will be returned instead).</p>
+<pre><code class="javascript language-javascript">//Callbacks work great...
+invoice_link.get({tranid:12345}, function(error, body)
+{
+    console.log(error, body);
+});
+
+//... and so do promises.
+invoice_link.post({tranid:24680})
+.then(function(body)
+{
+    console.log(body);
+})
+.catch(function(error)
+{
+    console.log(error);
+});
+
+//invoice_link also has .put() and .delete() methods
+</code></pre>
+<h2 id="passingdatatotherestlet">Passing Data to the RESTlet</h2>
+<p>Regardless of the HTTP methodn you use, you can recieve the data in Netsuite directly as the first paramater:</p>
+<pre><code class="javascript language-javascript">function restlet_called(body)
+{
+  //you recieve the payload as 'body'
+
+  //if your application likes JSON, you can send data back to it like this:
+  return {message: "I got your message", data: body}
+
+  //...otherwise send it as a string using JSON.stringify()
+}
+</code></pre>
+<p><code>GET</code>, <code>POST</code>, and <code>PUT</code> all allow you to send data back from the restlet to your application.  This data is delivered to the callback you provided or to the resolution function of the promise:</p>
+<pre><code class="javascript language-javascript">//for example as a callback
+invoice_link.post({tranid:12345}, function(error, body)
+{
+    console.log(body);
+    /*
+        You'd see this printed out:
+
+        { message: "I got your message",
+          data: { tranid:12345 } }
+    */
+});
+</code></pre>
+<p><code>DELETE</code> itself does not send any data back, but you should still provide a callback or recieve a promise to ensure no errors occured while making the request.</p>
+<h2 id="errorhandlingandendpointretries">Error Handling and Endpoint Retries</h2>
+<p>This module divides errors into two categories - retryable and non-retryable.</p>
+<p>Retryable errors are errors related to rate limiting or other conditions where the restlet didn't recieve the request at all.  If this module  recieves these errors, it'll retry the connection up to 3 times (by default).  If it can't connect, you'll recieve the error as is normal for callbacks (<code>error</code> paramater) or promises (<code>.catch()</code>).</p>
+<p>Non-Retryable errors are recieved as normal through callbacks or promises without retrying the endpoint at all.</p>
+<p>You can customize the options for how this module will retry on retryable errors by adding fields to the <strong>URLSettings</strong> object.</p>
+<pre><code class="javascript language-javascript">var urlSettings = {
+        script: 142,
+        deployment: 1,
+        retries: 5,     //specifies the number of retries, default is 3
+        backoff: 120 }  //specifies the multiplicative backoff, default is 0
+</code></pre>
+<p>The retries field should be pretty obvious.  For backoff, it specifies how many miliseconds of a delay you want in the case of a failiure.</p>
+<p>For example, if the backoff was 120, the module would delay 120 millseconds if the first request failed, and 240 millseconds if the second request failed (and so on).</p>
+<h2 id="needmorecustomization">Need more Customization?</h2>
+<p><a href="https://stackoverflow.com/questions/50611578/netsuite-oauth-not-working/50651498">Here is some basic code you can start with.</a>  It provides a good base for a custom solution.</p>
+<h2 id="wanttohelpwithdevelopment">Want to help with Development?</h2>
+<p>Feel free.  I have included a VERY basic test.js file with the module.  Run <code>npm install mocha -g</code> to get the test utility loadead and then run <code>npm test</code>.  You may see occasional errors due to timeouts, but that isn't related to the module's functionality.</p>
+<h2 id="licensce">Licensce</h2>
+<p>MIT (see LICENSE file).  But we love contributions and suggestions.  Please feel free to suggest improvements.</p>
+<h2 id="credits">Credits</h2>
+<p>This module was made after looking at a lot of good code.  Here is some the code that inspired this module and effected how it was designed:</p>
+<ul>
+<li><a href="https://github.com/bknights">bknight's</a> response in <a href="https://stackoverflow.com/questions/50611578/netsuite-oauth-not-working/50651498">this thread</a> is excellent - the idea of a facade for four HTTP codes works really well.  The error handling and retrying capabilities also comes from looking at his code.  He was generous enough to post a full example of what was working on his end.</li>
+<li><a href="https://github.com/suiteplus">suiteplus</a> has an excellent module called <a href="https://github.com/suiteplus/nscabinet">nscabinet</a>, which helps upload and download files from Netsuite as a gulp task.  Reading through it helped me understand how to use the <code>querystring</code> module and NLAuth.</li>
+<li>Marty Zigman has a <a href="http://blog.prolecto.com/2017/10/14/download-netsuite-oauth-token-based-authentication-sample-node-js-program/">good sample</a> that got me pointed in the right direction.</li>
+<li>These excellent modules are used in this project -   <a href="https://www.npmjs.com/package/request">request</a>, <a href="https://www.npmjs.com/package/oauth-1.0a">oauth-1.0a</a>, and <a href="https://www.npmjs.com/package/qs">qs</a>.</li>
+</ul>
+<h2 id="versionchanges">Version Changes</h2>
+<p>Please see the <a href="./CHANGELOG.md">Changelog</a></p>
