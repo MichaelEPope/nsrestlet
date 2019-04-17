@@ -2,7 +2,6 @@
 var assert = require('assert');             //node's basic assertion library
 var nsrestlet = require('./nsrestlet.js');  //nsretlet module (which we are testing)
 var qs = require('qs');                     //we will use this for query string processing
-var url = require('url');                    //used in the query string processing
 
 //ATTEMPT TO LOAD THE ENVIROMENTAL VARIABLES
 try
@@ -15,7 +14,8 @@ catch(err)
 }
 
 //SEPERATE THE SCRIPT AND DEPLOYMENT NUMBER IDS FROM THE EXTERNAL URL
-var params = qs.parse(url.parse(process.env.EXTERNAL_URL).query);
+var query = process.env.EXTERNAL_URL.slice(process.env.EXTERNAL_URL.indexOf("?") + 1);
+var params = qs.parse(query);
 
 //CREATE OUR VARIABLE OF SECRETS FROM THE ENVIROMENTAL VARIABLES
 var secret = {
