@@ -15,7 +15,7 @@ catch(err)
 }
 
 //SEPERATE THE SCRIPT AND DEPLOYMENT NUMBER IDS FROM THE EXTERNAL URL
-var params = qs.parse(new URL(process.env.EXTERNAL_URL).search);
+var params = qs.parse(url.parse(process.env.EXTERNAL_URL).query);
 
 //CREATE OUR VARIABLE OF SECRETS FROM THE ENVIROMENTAL VARIABLES
 var secret = {
@@ -49,8 +49,8 @@ var secret = {
     },
     {
         name:               "Number S&D IDs",
-        script:             params["?script"],
-        deployment:         params["deploy"]
+        script:             params.script,
+        deployment:         params.deploy
     },
     {
         name:               "URL S&D",
