@@ -24,6 +24,12 @@ and so it'd be a good change.  DELETE doesn't return anything, as per usual.
 This is a bit of a work in progress.  I'm trying to integrate the module into Travis-CI and Coveralls.  That
 will help it appear a bit higher in the npm search, and also give you guys a bit more confidence about the
 testing.  I found a few bugs in implementing it, so it seems to work great!
+## Added a Webpage
+This is expected for npm packages, so I just did something simple.  I'll make it more nice looking later.
+It feels kinda unnecessary though.
+## Added a Development file
+I wanted to make it easier for other people to contribute to the library, if they wanted to.
+There's a lot of steps, this file helps streamline them so they can get it going pretty easily.
 
 ## 1.0.1
 ### Updated the Readme.

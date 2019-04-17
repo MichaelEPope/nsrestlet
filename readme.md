@@ -31,8 +31,9 @@ var accountSettings = {
     consumerSecret: "PUT YOUR CONSUMER SECRET HERE" };
 var urlSettings = {url: 'https://ACCOUNTID.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=SCRIPTID&deploy=DEPLOYID'}
 
-//create a link
+//create a link (allows you to call the same restlet repeatedly)
 var myInvoices = nsrestlet.createLink(accountSettings, urlSettings)
+
 //then call get, post, put, or delete
 myInvoices.get({id: '12345'}, function(error, body)
 {
@@ -210,7 +211,7 @@ For example, if the backoff was 120, the module would delay 120 millseconds if t
 
 ## Want to help with Development?
 
-Feel free.  I have included a VERY basic test.js file with the module.  Run `````npm install mocha -g````` to get the test utility loadead and then run `````npm test`````.  You may see occasional errors due to timeouts, but that isn't related to the module's functionality.
+Feel free.  Please see the [Development](./DEVELOPMENT.md) page to get started.
 
 ## Licensce
 
