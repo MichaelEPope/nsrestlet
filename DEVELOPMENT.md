@@ -20,7 +20,7 @@ Hopefully I can change this in the future.  For now, run:
 5.  Next, set up a Restlet in Netsuite.  Use the following code as the script file:
 
 ```javascript
-function test(body)
+function restlet_called(body)
 {
     //used to simulate Netsuite dropping a request
     if(body.drop)
@@ -53,17 +53,17 @@ function test(body)
 }
 ```
 
-6.  The Script Record should have `test()` as the method in all four method slots.
+6.  The Script Record should have `restlet_called()` as the method in all four method slots.
 
-![alt text](./web/img/script_record_with_methods.png "Logo Title Text 1")
+![alt text](./web/img/restlet_functions.png "Logo Title Text 1")
 
 7.  Deploy the script.
 
-8.  We need to set some enviromental variables.  To do that, we need the following information:
+8.  We need to set some environmental variables.  To do that, we need the following information:
 
 * Account ID
-* OAuth Token Key, Token Secret, Consumere Key, Consumer Secret
-* Email, Password, and Role for a less privelaged (doesn't require 2FA) account
+* OAuth Token Key, Token Secret, Consumer Key, Consumer Secret
+* Email, Password, and Role for a less privileged (doesn't require 2FA) account
 * For the Restlet we just deployed, the URL, and Custom IDs for the Script and Deployment.
 
 9.  Create a file called `.env` that looks like this:
@@ -106,7 +106,7 @@ Just do your best.
 
 2.  Add lots of comments.  Again, readable from top to bottom.
 
-3.  Keep things sequential (because it keep code understandable).  It's popular in JS to create subfunctions an modularize.
+3.  Keep things sequential (because it keep code understandable).  It's popular in JS to create sub-functions an modularize.
 This sometimes makes the code difficult to understand though.  As an example, don't say
 `I'm splitting the function because it's too large`, instead ask yourself
 `would splitting the function here make sense to someone not familiar with the code?`

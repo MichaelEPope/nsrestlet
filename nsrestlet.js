@@ -224,10 +224,12 @@ module.exports = {
                     });
                 });
             }
-            else                            //if there is a callback, we can proceed as normally
+            //if there is a callback, we can proceed as normally
+            else
             {
 
-                var url = baseUrl;          //if we are doing get or delete, we need to encode the payload into a query string
+                //if we are doing get or delete, we need to encode the payload into a query string
+                var url = baseUrl;
                 if(method == "GET" || method == "DELETE")
                 {
                     url += "&" + qs.stringify(payload);

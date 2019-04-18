@@ -31,7 +31,7 @@ var accountSettings = {
     consumerSecret: "PUT YOUR CONSUMER SECRET HERE" };
 var urlSettings = {url: 'https://ACCOUNTID.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=SCRIPTID&deploy=DEPLOYID'}
 
-//create a link (allows you to call the same restlet repeatedly)
+//create a link
 var myInvoices = nsrestlet.createLink(accountSettings, urlSettings)
 
 //then call get, post, put, or delete
@@ -63,7 +63,7 @@ npm install nsrestlet
 
 In order to create a connection to Netsuite, you need to provide some account settings.
 
-For OAuth, the acount settings will look like this:
+For OAuth, the account settings will look like this:
 
 `````js
 //all fields are required
@@ -96,6 +96,9 @@ var urlSettings = {
     url: "https://12345.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=1&deploy=1"
 };
 `````
+
+![External URL field](./web/img/script_deployment_external_url.png "External URL field")
+
 The second way is to provide the script id and deployment id (either the string version or number version).  These can be found on the script and script deployment pages in Netsuite in the **ID** field:
 `````js
 //You can use the string version...
@@ -110,11 +113,14 @@ var urlSettings = {
     deployment: 1
 }
 `````
-There are two additional optional fields.  You can read about them further down in the Error Handling section. 
+
+![Script ID field](./web/img/script_custom_id.png "Script ID field")
+
+![Deployment ID field](./web/img/script_deployment_custom_id.png "Deployment ID field")
 
 ## Creating a Link
 
-Once you've created the account settings and url settings objects, pass them into `````createLink()`````:
+Once you've created the account settings and url settings objects, pass them into `````nsrestlet.createLink()`````:
 
 `````javascript
 var invoice_link = nsrestlet.createLink(accountSettings, urlSettings);
@@ -126,20 +132,21 @@ This link allows you to call a restlet endpoint in an easy, clean, and repeatabl
 
 Once you have a link, you can directly call the four basic HTTP methods (`````GET`````, `````POST`````, `````PUT`````, `````DELETE`````).
 
-The first paramater you provide is the data which will be sent to the restlet.
+The first parameter you provide is the data which will be sent to the restlet.
 
-The second paramater is optional.  You can either provide a callback which will be called when the data is returned, or not provide one (in which case, a promise will be returned instead).
+The second parameter is an optional callback.  If not provided, a promise will be returned instead.  This callback or promise will receive data from your Netsuite Restlet.
 
 `````javascript
+var data = {tranid: 12345}
+
 //Callbacks work great...
-invoice_link.get({tranid:12345}, function(error, body)
+invoice_link.get(data, function(error, body)
 {
     console.log(error, body);
 });
 
 //... and so do promises.
-invoice_link.post({tranid:24680})
-.then(function(body)
+invoice_link.post(data).then(function(body)
 {
     console.log(body);
 })
@@ -151,9 +158,9 @@ invoice_link.post({tranid:24680})
 //invoice_link also has .put() and .delete() methods
 `````
 
-## Passing Data to the RESTlet
+## Receiving and Returning Data in the Restlet
 
-Regardless of the HTTP methodn you use, you can recieve the data in Netsuite directly as the first paramater:
+Inside of your Restlet script in Netsuite, you will receive the data as the first parameter:
 
 `````javascript
 function restlet_called(body)
@@ -167,7 +174,9 @@ function restlet_called(body)
 }
 `````
 
-`````GET`````, `````POST`````, and `````PUT````` all allow you to send data back from the restlet to your application.  This data is delivered to the callback you provided or to the resolution function of the promise:
+For `````GET`````, `````POST`````, and `````PUT````` requests, you can return data back to the external application.
+
+This data will be provided in the callback or promise (depending on which you are using).
 
 `````javascript
 //for example as a callback
@@ -182,17 +191,17 @@ invoice_link.post({tranid:12345}, function(error, body)
     */
 });
 `````
-`````DELETE````` itself does not send any data back, but you should still provide a callback or recieve a promise to ensure no errors occured while making the request.
+For `````DELETE````` requests, you won't receive any data back, but you should still provide a callback or promise resolution to catch any errors that might occur.
 
 ## Error Handling and Endpoint Retries
 
-This module divides errors into two categories - retryable and non-retryable.
+When a request error occurs, NSRestlet first determines if retrying the request could possibly result in a success.  For example, with errors related to rate limiting, or dropped requests, retrying can be helpful and oftentimes works.
 
-Retryable errors are errors related to rate limiting or other conditions where the restlet didn't recieve the request at all.  If this module  recieves these errors, it'll retry the connection up to 3 times (by default).  If it can't connect, you'll recieve the error as is normal for callbacks (`````error````` paramater) or promises (`````.catch()`````).
+By default, if NSRestlet receives a retryable error, it will retry calling the Restlet up to 3 times.  Non-retryable errors will be emitted immediately.
 
-Non-Retryable errors are recieved as normal through callbacks or promises without retrying the endpoint at all.
+You can recieve this error in you callback (`````error````` paramater) or promise (`````.catch()`````).
 
-You can customize the options for how this module will retry on retryable errors by adding fields to the __URLSettings__ object.
+You can customize the retry settings by adding some fields to the __URLSettings__ object.
 
 `````javascript
 var urlSettings = {
@@ -201,9 +210,9 @@ var urlSettings = {
         retries: 5,     //specifies the number of retries, default is 3
         backoff: 120 }  //specifies the multiplicative backoff, default is 0
 `````
-The retries field should be pretty obvious.  For backoff, it specifies how many miliseconds of a delay you want in the case of a failiure.
+The retries refers to the number of retries to perform on retryable errors.  Backoff refers to how many milliseconds to delay if a request fails.
 
-For example, if the backoff was 120, the module would delay 120 millseconds if the first request failed, and 240 millseconds if the second request failed (and so on).
+The backoff is multiplicative, so each failure (in this case, 3 of them), will double the time delay (120, 240, 480 milliseconds).  This is a useful field if you're receiving rate limiting errors from Netsuite.
 
 ## Need more Customization?
 

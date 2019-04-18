@@ -26,7 +26,7 @@ will help it appear a bit higher in the npm search, and also give you guys a bit
 testing.  I found a few bugs in implementing it, so it seems to work great!
 ### Added a Webpage
 This is expected for npm packages, so I just did something simple.  I'll make it more nice looking later.
-It feels kinda unnecessary though.
+It feels rather unnecessary though.
 ### Added a Development file
 I wanted to make it easier for other people to contribute to the library, if they wanted to.
 There's a lot of steps, this file helps streamline them so they can get it going pretty easily.
@@ -46,6 +46,6 @@ a bit worried that they are letting contributors automatically commit.  That cou
 if it gets in the wrong hands.  I'll either wait a bit and see if it remains safe, or change to a
 similar module in the future.
 ## Cleaning Up The Documentation
-While the doucmentation is very detailed, it's also a bit of a mess.  Honestly, I'd like it to
+While the documentation is very detailed, it's also a bit of a mess.  Honestly, I'd like it to
 be 'so simple you can't get it wrong'.  This means I need to add pictures, and organize it so
-it's really easy to get set up.  Maybe a Youtube video?
+it's really easy to get set up.  Maybe a YouTube video?
