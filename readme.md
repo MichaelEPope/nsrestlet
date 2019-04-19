@@ -12,7 +12,7 @@ A module which makes connecting to Netsuite RESTlets using OAuth and NLAuth much
 ## Why NSRestlet?
 
 Connecting to Netsuite RESTlets with external programs can be really hard.
-* NLAuth has to deal with password changes and two factor authentication problems (which will soon be required on high-permission accounts)
+* NLAuth has to deal with password changes and two factor authentication problems (which are required on high-permission accounts)
 * OAuth is really hard to set up
 * Netsuite errors for debugging NLAuth and OAuth applications are somewhat vauge
 * The examples they have on SuiteAnswers don't always seem to work
