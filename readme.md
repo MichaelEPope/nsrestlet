@@ -172,6 +172,34 @@ function restlet_called(body)
 }
 `````
 
+Or in Suitscript 2:
+`````javascript
+/**
+ * @NApiVersion 2.x
+ * @NScriptType Restlet
+ */
+
+define(['N/log'], 
+    function(log) 
+    {
+        function restlet_called(body) 
+        {
+            //you recieve the payload as 'body'
+  
+            //if your application likes JSON, you can send data back to it like this:
+            return {message: "I got your message", data: body}
+  
+            //...otherwise send it as a string using JSON.stringify()
+        }
+        return {
+            get:    restlet_called,
+	        post:   restlet_called,
+            put:    restlet_called,
+            delete: restlet_called
+        };
+});
+`````
+
 For `````GET`````, `````POST`````, and `````PUT````` requests, you can return data back to the external application.
 
 This data will be provided in the callback or promise (depending on which you are using).
