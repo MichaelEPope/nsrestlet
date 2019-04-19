@@ -4,7 +4,7 @@ A module which makes connecting to Netsuite RESTlets using OAuth and NLAuth much
 
 [![npm package](https://nodei.co/npm/nsrestlet.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/nsrestlet/)
 
-[![Known Vulnerabilities](https://snyk.io/test/github/dwyl/hapi-auth-jwt2/badge.svg?targetFile=package.json)](https://snyk.io/test/github/dwyl/hapi-auth-jwt2?targetFile=package.json)
+[![Known Vulnerabilities](https://snyk.io/test/github/MichaelEPope/nsrestlet/badge.svg?targetFile=package.json)](https://snyk.io/test/github/MichaelEPope/nsrestlet?targetFile=package.json)
 [![Build Status](https://travis-ci.com/MichaelEPope/nsrestlet.svg?branch=master)](https://travis-ci.com/MichaelEPope/nsrestlet)
 [![Coverage Status](https://coveralls.io/repos/github/MichaelEPope/nsrestlet/badge.svg?branch=master)](https://coveralls.io/github/MichaelEPope/nsrestlet?branch=master)
 [![HitCount](http://hits.dwyl.io/MichaelEPope/nsrestlet.svg)](http://hits.dwyl.io/MichaelEPope/nsrestlet)
