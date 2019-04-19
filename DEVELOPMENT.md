@@ -106,11 +106,11 @@ Just do your best.
 
 2.  Add lots of comments.  Again, readable from top to bottom.
 
-3.  Keep things sequential (because it keep code understandable).  It's popular in JS to create sub-functions an modularize.
+3.  Keep things sequential (because it keeps code understandable).  It's popular in JS to create sub-functions an modularize.
 This sometimes makes the code difficult to understand though.  As an example, don't say
 `I'm splitting the function because it's too large`, instead ask yourself
 `would splitting the function here make sense to someone not familiar with the code?`
-In other words, avoid spaghetti (no offense to that delicious meal of the same name)
+In other words, avoid spaghetti (no offense to that delicious meal of the same name).
 
-Feel free to ask me any questions.  Though it may take me a few days to get back to you
+Feel free to ask me any questions, though it may take me a few days to get back to you
 (sorry, just a busy life).
