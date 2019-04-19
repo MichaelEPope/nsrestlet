@@ -1,3 +1,4 @@
+# Default .gitignore stuff
 .*.swp
 ._*
 .DS_Store
@@ -9,13 +10,12 @@
 .wafpickle-*
 config.gypi
 CVS
-npm-debug.log
-quick_test.js
-node_modules/*
-secret.js
+
+# Dont' commit our modules
+node_modules
+
+# Local files meant for testing
 test-basic.js
 .env
 coverage
 .nyc_output
-node_modules
-old-test.js

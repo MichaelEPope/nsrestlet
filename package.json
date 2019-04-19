@@ -16,7 +16,8 @@
     "based",
     "authentication",
     "tba",
-    "ns"
+    "ns",
+    "nlauth"
   ],
   "author": "Michael E. Pope",
   "homepage": "http://nsrestlet.surge.sh/",

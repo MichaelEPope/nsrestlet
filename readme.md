@@ -41,7 +41,7 @@ myInvoices.get({id: '12345'}, function(error, body)
 });
 
 ```
-That may look a bit intimidating, but trust me, it's not.  [We also have a tutorial on how to set up OAuth with Netsuite](./TUTORIAL.md), which makes things much easier, even if you aren't familiar with OAuth.
+That may look a bit intimidating, but trust me, it's not.  [Here is a tutorial on how to set up OAuth with Netsuite](./TUTORIAL.md), which makes things much easier, even if you aren't familiar with OAuth.
 
 ## Setting Things Up
 
@@ -103,8 +103,8 @@ The second way is to provide the script id and deployment id (either the string 
 `````js
 //You can use the string version...
 var urlSettings = {
-    script: "customscript_test_rlet",
-    deployment: "customdeploy_test_rlet"
+    script: "customscript_test_restlet",
+    deployment: "customdeploy_test_restlet"
 }
 
 //...or the number version
@@ -195,9 +195,11 @@ For `````DELETE````` requests, you won't receive any data back, but you should s
 
 ## Error Handling and Endpoint Retries
 
-When a request error occurs, NSRestlet first determines if retrying the request could possibly result in a success.  For example, with errors related to rate limiting, or dropped requests, retrying can be helpful and oftentimes works.
+Sometimes things go wrong when trying to call a Restlet, and an error is emitted.
 
-By default, if NSRestlet receives a retryable error, it will retry calling the Restlet up to 3 times.  Non-retryable errors will be emitted immediately.
+In caess like rate limitng or dropped requests, `nsrestlet` will retry the call (by default up to three times) before emitting an error.
+
+In other cases where retrying wouldn't make a difference, `nsrestlet` will emit an error immediately.
 
 You can recieve this error in you callback (`````error````` paramater) or promise (`````.catch()`````).
 
@@ -210,9 +212,9 @@ var urlSettings = {
         retries: 5,     //specifies the number of retries, default is 3
         backoff: 120 }  //specifies the multiplicative backoff, default is 0
 `````
-The retries refers to the number of retries to perform on retryable errors.  Backoff refers to how many milliseconds to delay if a request fails.
-
-The backoff is multiplicative, so each failure (in this case, 3 of them), will double the time delay (120, 240, 480 milliseconds).  This is a useful field if you're receiving rate limiting errors from Netsuite.
+The retries refers to the number of retries to perform on retryable errors.  Backoff refers to how many milliseconds to delay on a retryable error if a request fails.
+The backoff is multiplicative, so each failure (in this case, 3 of them), will double the time delay (120, 240, 480 milliseconds).
+This is a useful field if you're receiving rate limiting errors from Netsuite.
 
 ## Need more Customization?
 
