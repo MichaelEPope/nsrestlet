@@ -196,7 +196,7 @@ For `GET`, `POST`, and `PUT` requests, you can return data back to the external 
 
 This data will be provided in the callback or promise (depending on which you are using).
 
-``javascript
+```javascript
 // for example as a callback
 invoiceLink.post({tranid:12345}, function(error, body) {
     console.log(body);
@@ -207,7 +207,7 @@ invoiceLink.post({tranid:12345}, function(error, body) {
           data: { tranid:12345 } }
     */
 });
-`````
+```
 For `DELETE` requests, you won't receive any data back, but you should still provide a callback or promise resolution to catch any errors that might occur.
 
 ### Error Handling and Retries
@@ -220,14 +220,14 @@ You can receive this error in you callback (`error` parameter) or promise (`.cat
 
 You can customize the retry settings by adding some fields to the __URLSettings__ object.
 
-``javascript
+```javascript
 var urlSettings = {
     script: 142,
     deployment: 1,
     retries: 5,     // number of retries on retryable errors, default is 3
     backoff: 120    // multiplicative backoff in ms, default is 0
 }  
-``
+```
 Backoff refers to how many milliseconds to delay on a retryable error if a request fails. The backoff is multiplicative, so each failure (in this case, 3 of them), will double the time delay (120, 240, 480 milliseconds). This is a useful field if you're receiving rate limiting errors from NetSuite.
 
 ## Need more Customization?
