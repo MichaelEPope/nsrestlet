@@ -14,7 +14,7 @@ A module which makes connecting to Netsuite RESTlets using OAuth and NLAuth much
 Connecting to Netsuite RESTlets with external programs can be really hard.
 * NLAuth has to deal with password changes and two factor authentication problems (which are required on high-permission accounts)
 * OAuth is really hard to set up
-* Netsuite errors for debugging NLAuth and OAuth applications are somewhat vauge
+* Netsuite errors for debugging NLAuth and OAuth applications are somewhat vague
 * The examples they have on SuiteAnswers don't always seem to work
 
 This module will make your life easier.  It's as easy as:
@@ -82,7 +82,7 @@ var accountSettings = {
     accountId: "PUT YOUR ACCOUNT ID HERE",
     email: "PUT YOUR EMAIL HERE",
     password: "PUT YOUR PASSWORD HERE",
-    role: "PUT YOUR ROLE KEY HERE" };   //optional, but reccomended
+    role: "PUT YOUR ROLE KEY HERE" };   //optional, but recommended
 `````
 
 ## Setting Up URL Settings
@@ -163,7 +163,7 @@ Inside of your Restlet script in Netsuite, you will receive the data as the firs
 `````javascript
 function restlet_called(body)
 {
-  //you recieve the payload as 'body'
+  //you receive the payload as 'body'
   
   //if your application likes JSON, you can send data back to it like this:
   return {message: "I got your message", data: body}
@@ -184,7 +184,7 @@ define(['N/log'],
     {
         function restlet_called(body) 
         {
-            //you recieve the payload as 'body'
+            //you receive the payload as 'body'
   
             //if your application likes JSON, you can send data back to it like this:
             return {message: "I got your message", data: body}
@@ -193,7 +193,7 @@ define(['N/log'],
         }
         return {
             get:    restlet_called,
-	        post:   restlet_called,
+            post:   restlet_called,
             put:    restlet_called,
             delete: restlet_called
         };
@@ -223,11 +223,11 @@ For `````DELETE````` requests, you won't receive any data back, but you should s
 
 Sometimes things go wrong when trying to call a Restlet, and an error is emitted.
 
-In caess like rate limitng or dropped requests, `nsrestlet` will retry the call (by default up to three times) before emitting an error.
+In cases like rate limiting or dropped requests, `nsrestlet` will retry the call (by default up to three times) before emitting an error.
 
 In other cases where retrying wouldn't make a difference, `nsrestlet` will emit an error immediately.
 
-You can recieve this error in you callback (`````error````` paramater) or promise (`````.catch()`````).
+You can receive this error in you callback (`````error````` parameter) or promise (`````.catch()`````).
 
 You can customize the retry settings by adding some fields to the __URLSettings__ object.
 
@@ -250,7 +250,7 @@ This is a useful field if you're receiving rate limiting errors from Netsuite.
 
 Feel free.  Please see the [Development](./DEVELOPMENT.md) page to get started.
 
-## Licensce
+## License
 
 MIT (see LICENSE file).  But we love contributions and suggestions.  Please feel free to suggest improvements.
 
