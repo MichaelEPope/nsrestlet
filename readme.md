@@ -137,16 +137,14 @@ The first parameter you provide is the data which will be sent to the restlet.
 The second parameter is an optional callback.  If not provided, a promise will be returned instead.  This callback or promise will receive data from your Netsuite Restlet.
 
 `````javascript
-var data = {tranid: 12345}
-
 //Callbacks work great...
-invoice_link.get(data, function(error, body)
+invoice_link.get({tranid: 12345}, function(error, body)
 {
     console.log(error, body);
 });
 
 //... and so do promises.
-invoice_link.post(data).then(function(body)
+invoice_link.post({tranid: 12345}).then(function(body)
 {
     console.log(body);
 })
