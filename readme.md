@@ -172,7 +172,7 @@ function restlet_called(body)
 }
 `````
 
-Or in Suitscript 2:
+Or in Suitescript 2:
 `````javascript
 /**
  * @NApiVersion 2.x
