@@ -100,6 +100,8 @@ Netsuite changes the process for setting up scripts occasionally, so these steps
 
 2. Enter in the name of a script file (or click the + button to upload one from the new computer) and then click __Create Script Record__.  Here's the code that should be in that file:
 
+* If you're using Suitescript 1:
+
 `````javascript
 function restlet_called(body)
 {
@@ -112,6 +114,35 @@ function restlet_called(body)
     }
 
 }
+`````
+
+* If you're using Suitescript 2, use the following instead:
+
+`````javascript
+/**
+ * @NApiVersion 2.x
+ * @NScriptType Restlet
+ */
+
+define(['N/log'], 
+    function(log) 
+    {
+        function restlet_called(body) 
+        {
+            //you recieve the payload as 'body'
+  
+            //if your application likes JSON, you can send data back to it like this:
+            return {message: "I got your message", data: body}
+  
+            //...otherwise send it as a string using JSON.stringify()
+        }
+        return {
+            get:    restlet_called,
+	    post:   restlet_called,
+            put:    restlet_called,
+            delete: restlet_called
+        };
+});
 `````
 
 3. Select a __RESTlet__ script
