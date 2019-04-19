@@ -49,7 +49,7 @@ Follow these four steps:
 
 1.  [Read this tutorial](./TUTORIAL.md).  It contains instructions on how to set up your Netsuite environment for OAuth or NLAuth.
 
-2.  [Install Node.JS](https://nodejs.org).  This module should work with any version that isn't too old.
+2.  [Install Node.JS](https://nodejs.org).  This module should work with any version that isn't too old (I test on Node.JS version 6 and it works fine).
 
 3.  Open the command line and change your directory (using `````cd`````) to your project.
 
