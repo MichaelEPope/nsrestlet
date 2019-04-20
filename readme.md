@@ -133,6 +133,8 @@ The first parameter you provide is the data which will be sent to the restlet.
 
 The second parameter is an optional callback.  If not provided, a promise will be returned instead.  This callback or promise will receive data from your NetSuite Restlet.
 
+For `GET` requests, make sure the data you provide is strings or a one-level-deep JS object with strings.  For `PUT`, `POST`, and `DELETE`, you can use any JS object you'd like.
+
 ```javascript
 // Using callbacks
 invoiceLink.get({tranid: 12345}, function(error, body) {
@@ -149,6 +151,8 @@ invoiceLink.post({tranid: 12345}).then(function(body) {
 
 // invoiceLink also has .put() and .delete() methods
 ```
+
+Note that for `GET` requests, you should limit the data you post to 1 level deep strings.
 
 ### Receiving and Returning Data in the Restlet
 
