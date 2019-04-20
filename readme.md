@@ -26,21 +26,21 @@ Connecting to NetSuite RESTlets with external programs can be really hard.
 ## Usage
 
 ```javascript
-const nsrestlet = require('nsrestlet');
+var nsrestlet = require('nsrestlet');
 
 //For OAuth (we can do NLAuth too, see later in documentation):
-let accountSettings = {
+var accountSettings = {
     accountId: "PUT YOUR ACCOUNT ID HERE",
     tokenKey: "PUT YOUR TOKEN KEY HERE",
     tokenSecret: "PUT YOUR TOKEN SECRET HERE",
     consumerKey: "PUT YOUR CONSUMER KEY HERE",
     consumerSecret: "PUT YOUR CONSUMER SECRET HERE" };
-let urlSettings = {
+var urlSettings = {
     url: 'https://ACCOUNTID.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=SCRIPTID&deploy=DEPLOYID'
  }
 
 //create a link
-let myInvoices = nsrestlet.createLink(accountSettings, urlSettings)
+var myInvoices = nsrestlet.createLink(accountSettings, urlSettings)
 
 //then call get, post, put, or delete
 myInvoices.get({id: '12345'}, function(error, body)
@@ -62,7 +62,7 @@ For OAuth, the account settings will look like this:
 
 ```javascript
 //all fields are required
-const accountSettings = {
+var accountSettings = {
     accountId: "PUT YOUR ACCOUNT ID HERE",
     tokenKey: "PUT YOUR TOKEN KEY HERE",
     tokenSecret: "PUT YOUR TOKEN SECRET HERE",
@@ -74,7 +74,7 @@ For NLAuth, the account settings look like this:
 
 ```javascript
 //all fields except role are required
-const accountSettings = {
+var accountSettings = {
     accountId: "PUT YOUR ACCOUNT ID HERE",
     email: "PUT YOUR EMAIL HERE",
     password: "PUT YOUR PASSWORD HERE",
@@ -89,7 +89,7 @@ You also need to provide some URL settings.  The URL settings can be formatted i
 Use an explicit URL.  This is listed on the script deployment page in Netsuite as the **EXTERNAL URL** field:
 
 ```javascript
-let urlSettings = {
+var urlSettings = {
     url: "https://12345.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=1&deploy=1"
 };
 ```
@@ -99,13 +99,13 @@ let urlSettings = {
 Alternatively, provide the script id and deployment id (either the string version or number version).  These can be found on the script and script deployment pages in Netsuite in the **ID** field:
 ```javascript
 // You can use the string version...
-let urlSettings = {
+var urlSettings = {
     script: "customscript_test_restlet",
     deployment: "customdeploy_test_restlet"
 }
 
 // or, the number version
-let urlSettings = {
+var urlSettings = {
     script: 142,
     deployment: 1
 }
@@ -118,7 +118,7 @@ let urlSettings = {
 Once you've created the account settings and url settings objects, pass them into `nsrestlet.createLink()`:
 
 ```javascript
-const invoiceLink = nsrestlet.createLink(accountSettings, urlSettings);
+var invoiceLink = nsrestlet.createLink(accountSettings, urlSettings);
 ```
 
 This link allows you to call a restlet endpoint in an easy, clean, and repeatable way.  It also allows you to reuse the account settings to connect to other restlets.
@@ -131,7 +131,7 @@ The first parameter you provide is the data which will be sent to the restlet.
 
 The second parameter is an optional callback.  If not provided, a promise will be returned instead.  This callback or promise will receive data from your NetSuite Restlet.
 
-``javascript
+```javascript
 // Using callbacks
 invoiceLink.get({tranid: 12345}, function(error, body) {
     console.log(error, body);
@@ -146,7 +146,7 @@ invoiceLink.post({tranid: 12345}).then(function(body) {
 });
 
 // invoiceLink also has .put() and .delete() methods
-``
+```
 
 ### Receiving and Returning Data in the Restlet
 
