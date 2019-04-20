@@ -113,6 +113,8 @@ var urlSettings = {
 
 ![Script ID field](./web/img/script_custom_id.png "Script ID field")
 
+![Deployment ID field](./web/img/script_deployment_custom_id.png "Deployment ID field")
+
 ### Creating a Link
 
 Once you've created the account settings and url settings objects, pass them into `nsrestlet.createLink()`:
