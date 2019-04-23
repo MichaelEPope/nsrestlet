@@ -257,6 +257,7 @@ This module was made after looking at a lot of good code.  Here is some the code
 * Marty Zigman has a [good sample](http://blog.prolecto.com/2017/10/14/download-netsuite-oauth-token-based-authentication-sample-node-js-program/) that got me pointed in the right direction.
 * These excellent modules are used in this project -   [request](https://www.npmjs.com/package/request), [oauth-1.0a](https://www.npmjs.com/package/oauth-1.0a), and [qs](https://www.npmjs.com/package/qs).
 *  Some conversations with `scottvonduhn` and `battk` on the [Unofficial Netsuite Slack Server](http://netsuiteprofessionals.com/).
+* Some excellent pull requests by awesome folk on Github.
 
 ## Version Changes
 
