@@ -19,6 +19,7 @@
 const request = require('request');
 const OAuth = require('oauth-1.0a');
 const qs = require('qs');
+const url = require('url');
 
 //On very rare occasions, NodeJS can be built without the crypto module.  I dont' want to have to manage
 //the security of cryptographic modules, so I'm just going to let NodeJS handle it and throw an error if
@@ -74,7 +75,7 @@ module.exports = {
     createLink: function(accountSettings, urlSettings)
     {
 
-        var authType, oauth, baseUrl;     //some variables we may need to use in the process
+        var authType, oauth;    //some variables we may need to use in the process
 
         /*
             ACCOUNT SETTINGS
@@ -162,15 +163,7 @@ module.exports = {
             throw new Error("Not enough information was provided to createLink().  You must provide either the URL or an object with {script, deployment} as the second argument")
         }
 
-        if(urlSettings.url)                                                         //if a url string is provided, we are good
-        {
-            baseUrl = urlSettings.url;
-        }
-        else if(urlSettings.script && urlSettings.deployment)                       //if the url is a {script, deployment}, we design the URL and are good
-        {
-            baseUrl = 'https://' + accountSettings.accountId + '.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=' + urlSettings.script + '&deploy=' + urlSettings.deployment;
-        }
-        else                                                                        //if neither, we have a problem, and tooss an error
+        if(!urlSettings.url && !(urlSettings.script && urlSettings.deployment))     //if there isn't a url or a {script,deployment}, toss an error
         {
             throw new Error("Not enough information was provided to createLink().  You must provide either the URL or an object with {script, deployment} as the second argument")
         }
@@ -227,66 +220,16 @@ module.exports = {
             //if there is a callback, we can proceed as normally
             else
             {
-
-                //if we are doing get or delete, we need to encode the payload into a query string
-                var url = baseUrl;
-                if(method == "GET" || method == "DELETE")
-                {
-                    url += "&" + qs.stringify(payload);
-                }
-
                 //this is the inner function that contains all of the meaty code
                 //it is called at the end of the function for the first time, and can be recalled
                 //but only does so if certain errors are recieved
                 makeCall = function makeCall(repeats)
                 {
-                    if(authType == "OAuth")     //if we are doing OAuth
-                    {
-                        //encode an authorization of the following data using HMAC-SHA256
-                        var authorization = oauth.authorize({
-                            url: url,
-                            method: method  },{
-                            key: accountSettings.tokenKey,
-                            secret: accountSettings.tokenSecret
-                        })
-
-                        //stick it and the other stuff we need in the header
-                        headers = oauth.toHeader(authorization);
-                        headers.Authorization += ', realm="' + accountSettings.accountId + '"';
-
-                    }
-                    else                        //if we are doing NLAUTH
-                    {
-                        //stick the necessary stuff in the header
-                        var headers = { Authorization: '' }
-                        headers.Authorization += 'NLAuth nlauth_account=' + accountSettings.accountId;
-                        headers.Authorization += ',nlauth_email=' + accountSettings.email;
-                        headers.Authorization += ',nlauth_signature=' + accountSettings.password;
-
-                        //role is optional (but reccomended)
-                        if(accountSettings.role)
-                        {
-                            headers.Authorization += ',nlauth_role=' + accountSettings.role
-                        }
-                    }
-
-                    //we are using application/json, which will pretty much always work for what people want
-                    headers['content-type'] = 'application/json';
-
-                    //set up the request settings
                     var requestSettings = {
-                        url: url,
-                        method: method,
-                        headers: headers,
+                        url: 'https://rest.netsuite.com/rest/datacenterurls?' + qs.stringify({account:accountSettings.accountId}),
+                        json: true,
+                        method: "GET"
                     }
-
-                    //if we aren't doing get, we need to add the payload as json
-                    if(method != "GET" && method != "DELETE")
-                    {
-                        requestSettings.json = payload;
-                    }
-
-                    //make the actual request
                     request(requestSettings, function(error, response, body)
                     {
                         //we need to do some pre-formatting of error and body
@@ -302,13 +245,10 @@ module.exports = {
                         //otherwise if there wasn't...
                         else
                         {
+                            //the body is already JSON
                             actual_body = body;
-                            //turn the body into JSON
-                            if(actual_body != '' && (method == "GET" || method == "DELETE"))
-                            {
-                                actual_body = JSON.parse(actual_body);
-                            }
                             //and if there was a Netsuite error, get the error message
+                            /* istanbul ignore next  */      //we tell our code coverage tool to ignore this because it's really hard to test - I'm not even sure if this endpoint will throw an error this way considering the url is formatted corectly.  Covering bases though.
                             if(actual_body.error && actual_body.error.code)
                             {
                                 actual_error = actual_body.error;
@@ -316,26 +256,145 @@ module.exports = {
                             }
                         }
 
+                        var urlToCall;
                         //if there was an error
+                        /* istanbul ignore if  */      //we tell our code coverage tool to ignore this because it's really hard to test - it's hard to cause a network error without a lot of work
                         if(error_message)
                         {
-                            //if we got an error that we can try again, and we haven't reached our repeat limit, try again
-                            //otherwise throw an error
-                            //largely gotten from bknight's code (see readme)
-                            if(has_error_message(error_message, ['ECONNRESET', 'ESOCKETTIMEDOUT','ETIMEDOUT', 'SSS_REQUEST_LIMIT_EXCEEDED']))
+                            //we will need to design the url string manually
+                            if(urlSettings.url)                                     //if a url string was originally provided, we are good
                             {
-                                if(repeats > 0)
+                                urlToCall = urlSettings.url;
+                            }
+                            else if(urlSettings.script && urlSettings.deployment)   //if the url is a {script, deployment}, we design the URL and are good
+                            {
+                                urlToCall = 'https://' + accountSettings.accountId + '.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=' + urlSettings.script + '&deploy=' + urlSettings.deployment;
+                            }
+                        }
+                        else
+                        {
+                            //we got a correct response - so get the rest Domain
+                            urlToCall = actual_body.restDomain + "/app/site/hosting/restlet.nl";
+
+                            /* istanbul ignore else  */                             //an error would have been thrown earlier, so we don't need to worry about the else path for now
+                            if(urlSettings.url)                                     //if a url string was originally provided, we need the search paramaters
+                            {
+                                var urlObj = url.parse(urlSettings.url);
+                                urlToCall += urlObj.search;
+                            }
+                            else if(urlSettings.script && urlSettings.deployment)   //if the url is a {script, deployment}, we design the URL and are good
+                            {
+                                urlToCall += '?script=' + urlSettings.script + '&deploy=' + urlSettings.deployment;
+                            }
+                        }
+
+                        //if we are doing get or delete, we need to encode the payload into a query string
+                        if(method == "GET" || method == "DELETE")
+                        {
+                            urlToCall += "&" + qs.stringify(payload);
+                        }
+
+
+                        if(authType == "OAuth")     //if we are doing OAuth
+                        {
+                            //encode an authorization of the following data using HMAC-SHA256
+                            var authorization = oauth.authorize({
+                                url: urlToCall,
+                                method: method  },{
+                                key: accountSettings.tokenKey,
+                                secret: accountSettings.tokenSecret
+                            })
+
+                            //stick it and the other stuff we need in the header
+                            headers = oauth.toHeader(authorization);
+                            headers.Authorization += ', realm="' + accountSettings.accountId + '"';
+
+                        }
+                        else                        //if we are doing NLAUTH
+                        {
+                            //stick the necessary stuff in the header
+                            var headers = { Authorization: '' }
+                            headers.Authorization += 'NLAuth nlauth_account=' + accountSettings.accountId;
+                            headers.Authorization += ',nlauth_email=' + accountSettings.email;
+                            headers.Authorization += ',nlauth_signature=' + accountSettings.password;
+
+                            //role is optional (but reccomended)
+                            if(accountSettings.role)
+                            {
+                                headers.Authorization += ',nlauth_role=' + accountSettings.role
+                            }
+                        }
+
+                        //we are using application/json, which will pretty much always work for what people want
+                        headers['content-type'] = 'application/json';
+
+                        //set up the request settings
+                        var requestSettings = {
+                            url: urlToCall,
+                            method: method,
+                            headers: headers,
+                        }
+
+                        //if we aren't doing get, we need to add the payload as json
+                        if(method != "GET" && method != "DELETE")
+                        {
+                            requestSettings.json = payload;
+                        }
+
+                        //make the actual request
+                        request(requestSettings, function(error, response, body)
+                        {
+                            //we need to do some pre-formatting of error and body
+                            //if there was a regular error, get the error message
+
+                            /* istanbul ignore if  */      //we tell our code coverage tool to ignore this because it's really hard to test - it's hard to cause a network error without a lot of work
+                            if(error)
+                            {
+                                actual_error = error;
+                                error_message = actual_error.message || JSON.stringify(actual_error);
+                            }
+                            //otherwise if there wasn't...
+                            else
+                            {
+                                actual_body = body;
+                                //turn the body into JSON
+                                if(actual_body != '' && (method == "GET" || method == "DELETE"))
                                 {
-                                    if(urlSettings.backoff && urlSettings.retries)
+                                    actual_body = JSON.parse(actual_body);
+                                }
+                                //and if there was a Netsuite error, get the error message
+                                if(actual_body.error && actual_body.error.code)
+                                {
+                                    actual_error = actual_body.error;
+                                    error_message = actual_error.code;
+                                }
+                            }
+
+                            //if there was an error
+                            if(error_message)
+                            {
+                                //if we got an error that we can try again, and we haven't reached our repeat limit, try again
+                                //otherwise throw an error
+                                //largely gotten from bknight's code (see readme)
+                                if(has_error_message(error_message, ['ECONNRESET', 'ESOCKETTIMEDOUT','ETIMEDOUT', 'SSS_REQUEST_LIMIT_EXCEEDED']))
+                                {
+                                    if(repeats > 0)
                                     {
-                                        setTimeout(function()
+                                        if(urlSettings.backoff && urlSettings.retries)
+                                        {
+                                            setTimeout(function()
+                                            {
+                                                makeCall(repeats - 1);
+                                            }, urlSettings.backoff * (urlSettings.retries - (repeats + 1)));
+                                        }
+                                        else
                                         {
                                             makeCall(repeats - 1);
-                                        }, urlSettings.backoff * (urlSettings.retries - (repeats + 1)));
+                                        }
                                     }
                                     else
                                     {
-                                        makeCall(repeats - 1);
+                                        callback(actual_error);
                                     }
                                 }
                                 else
@@ -345,15 +404,12 @@ module.exports = {
                             }
                             else
                             {
-                                callback(actual_error);
+                                //we got a correct response - return the body
+                                //(because we don't care about the headers and all that stuff, just the data)
+                                callback(undefined, actual_body);
                             }
-                        }
-                        else
-                        {
-                            //we got a correct response - return the body
-                            //(because we don't care about the headers and all that stuff, just the data)
-                            callback(undefined, actual_body);
-                        }
+                        });
+
                     });
                 }
                 //make the call to the function - we can retry up to three times

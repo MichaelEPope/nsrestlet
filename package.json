@@ -4,7 +4,7 @@
   "description": "A module to help you create and use connections to your Netsuite Restlets.",
   "main": "nsrestlet.js",
   "scripts": {
-    "test": "nyc --reporter=html --reporter=text mocha --timeout=50000",
+    "test": "nyc --reporter=html --reporter=text mocha --timeout=300000",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "lint": "eslint nsrestlet.js"
   },
