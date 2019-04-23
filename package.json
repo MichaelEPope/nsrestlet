@@ -24,7 +24,7 @@
   "license": "MIT",
   "dependencies": {
     "oauth-1.0a": "^2.2.5",
-    "qs": "^6.0.4",
+    "qs": "^6.7.0",
     "request": "^2.88.0"
   },
   "devDependencies": {
