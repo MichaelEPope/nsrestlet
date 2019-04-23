@@ -225,75 +225,54 @@ module.exports = {
                 //but only does so if certain errors are recieved
                 makeCall = function makeCall(repeats)
                 {
-                    var requestSettings = {
-                        url: 'https://rest.netsuite.com/rest/datacenterurls?' + qs.stringify({account:accountSettings.accountId}),
-                        json: true,
-                        method: "GET"
-                    }
-                    request(requestSettings, function(error, response, body)
+                    /*
+                        GET NETSUITE URL
+
+                        Please read about this function toards the end of this file.  It just gets
+                        the correct Netsuite URL
+                    */
+
+                    getNetsuiteURL(accountSettings, urlSettings, function(urlToCall)
                     {
-                        //we need to do some pre-formatting of error and body
-                        //if there was a regular error, get the error message
-                        var actual_error, actual_body, error_message;
+                        /*
+                            ENCODE THE PAYLOAD
 
-                        /* istanbul ignore if  */      //we tell our code coverage tool to ignore this because it's really hard to test - it's hard to cause a network error without a lot of work
-                        if(error)
-                        {
-                            actual_error = error;
-                            error_message = actual_error.message || JSON.stringify(actual_error);
-                        }
-                        //otherwise if there wasn't...
-                        else
-                        {
-                            //the body is already JSON
-                            actual_body = body;
-                            //and if there was a Netsuite error, get the error message
-                            /* istanbul ignore next  */      //we tell our code coverage tool to ignore this because it's really hard to test - I'm not even sure if this endpoint will throw an error this way considering the url is formatted corectly.  Covering bases though.
-                            if(actual_body.error && actual_body.error.code)
-                            {
-                                actual_error = actual_body.error;
-                                error_message = actual_error.code;
-                            }
-                        }
-
-                        var urlToCall;
-                        //if there was an error
-                        /* istanbul ignore if  */      //we tell our code coverage tool to ignore this because it's really hard to test - it's hard to cause a network error without a lot of work
-                        if(error_message)
-                        {
-                            //we will need to design the url string manually
-                            if(urlSettings.url)                                     //if a url string was originally provided, we are good
-                            {
-                                urlToCall = urlSettings.url;
-                            }
-                            else if(urlSettings.script && urlSettings.deployment)   //if the url is a {script, deployment}, we design the URL and are good
-                            {
-                                urlToCall = 'https://' + accountSettings.accountId + '.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=' + urlSettings.script + '&deploy=' + urlSettings.deployment;
-                            }
-                        }
-                        else
-                        {
-                            //we got a correct response - so get the rest Domain
-                            urlToCall = actual_body.restDomain + "/app/site/hosting/restlet.nl";
-
-                            /* istanbul ignore else  */                             //an error would have been thrown earlier, so we don't need to worry about the else path for now
-                            if(urlSettings.url)                                     //if a url string was originally provided, we need the search paramaters
-                            {
-                                var urlObj = url.parse(urlSettings.url);
-                                urlToCall += urlObj.search;
-                            }
-                            else if(urlSettings.script && urlSettings.deployment)   //if the url is a {script, deployment}, we design the URL and are good
-                            {
-                                urlToCall += '?script=' + urlSettings.script + '&deploy=' + urlSettings.deployment;
-                            }
-                        }
+                            Data has to be sent to the Restlet somehow.  There are different ways data is sent
+                            depending on what type of request is being made (GET, POST, PUT, or DELETE).
+                            
+                            With GET and DELETE requests, data is encoded into the URL using query paramaters
+                            (you know, the part of some URLs you'll see that goes something like '?a=1&b=2&c=3').
+                            This limits GET and DLETE to simple payloads like {a:1, b:2, c:3}.
+                            
+                            POST and PUT both put their data in what is called the body of the request.  This allows
+                            you to send a JSON object with as much depth as you'd like.  Quite nice!
+                        */
+                    
+                        var requestSettings = {};
 
                         //if we are doing get or delete, we need to encode the payload into a query string
                         if(method == "GET" || method == "DELETE")
                         {
                             urlToCall += "&" + qs.stringify(payload);
                         }
+                        //otherwise, we need to attach it as json
+                        else
+                        {
+                            requestSettings.json = payload;
+                        }
+                        //make sure to save the url to the requestSettings
+                        requestSettings.url = urlToCall;
 
+                        /*
+                            SET THE AUTHORIZATION
+
+                            We already talked a bit about the Authorization above (so read that for details).
+                            This section creates the OAuth or NLAUth headers that we need to make a call to
+                            the Restlet.  For both we need quite a bit of data, so I didn't seperate them into
+                            their own function.  I might do that in the future though.
+                        */
+
+                        var headers;
 
                         if(authType == "OAuth")     //if we are doing OAuth
                         {
@@ -313,7 +292,7 @@ module.exports = {
                         else                        //if we are doing NLAUTH
                         {
                             //stick the necessary stuff in the header
-                            var headers = { Authorization: '' }
+                            headers = { Authorization: '' }
                             headers.Authorization += 'NLAuth nlauth_account=' + accountSettings.accountId;
                             headers.Authorization += ',nlauth_email=' + accountSettings.email;
                             headers.Authorization += ',nlauth_signature=' + accountSettings.password;
@@ -325,51 +304,31 @@ module.exports = {
                             }
                         }
 
+                        /*
+                            JUST SOME EXTRA STUFF
+
+                            We need to add a content-type, method, and headers to the request.
+                            Not much else.
+                        */
+
                         //we are using application/json, which will pretty much always work for what people want
                         headers['content-type'] = 'application/json';
 
                         //set up the request settings
-                        var requestSettings = {
-                            url: urlToCall,
-                            method: method,
-                            headers: headers,
-                        }
+                        requestSettings.method = method;
+                        requestSettings.headers = headers;
 
-                        //if we aren't doing get, we need to add the payload as json
-                        if(method != "GET" && method != "DELETE")
-                        {
-                            requestSettings.json = payload;
-                        }
+                        /*
+                            MAKE THE REQUEST
+
+                            We finally get to make the request.  Once we make the request, we either pass back the
+                            data or if we got an error, we do some checking.  If we get an error that we can retry,
+                            we do some after some optional user provided backoff.  Otherwise, we pass back an error.
+                        */
 
                         //make the actual request
-                        request(requestSettings, function(error, response, body)
+                        getDataFromNetsuite(requestSettings, method, function(actual_error, error_message, actual_body)
                         {
-                            //we need to do some pre-formatting of error and body
-                            //if there was a regular error, get the error message
-
-                            /* istanbul ignore if  */      //we tell our code coverage tool to ignore this because it's really hard to test - it's hard to cause a network error without a lot of work
-                            if(error)
-                            {
-                                actual_error = error;
-                                error_message = actual_error.message || JSON.stringify(actual_error);
-                            }
-                            //otherwise if there wasn't...
-                            else
-                            {
-                                actual_body = body;
-                                //turn the body into JSON
-                                if(actual_body != '' && (method == "GET" || method == "DELETE"))
-                                {
-                                    actual_body = JSON.parse(actual_body);
-                                }
-                                //and if there was a Netsuite error, get the error message
-                                if(actual_body.error && actual_body.error.code)
-                                {
-                                    actual_error = actual_body.error;
-                                    error_message = actual_error.code;
-                                }
-                            }
-
                             //if there was an error
                             if(error_message)
                             {
@@ -468,4 +427,132 @@ module.exports = {
         }
     }
 
+}
+
+/*
+    GET THE NETSUITE URL
+
+    We use this method to get the URL we will call the Restlet from.  Why do we do this if a user already gives
+    us the URL?  It's because Netsuite's URL format may change in the future.  We want this module to be as
+    future-proof as possible.  Ideally, even if Netsuite changes the URL, they shouldn't need to change the URL
+    they give or update their appliation at all.
+
+    This function allows that by calling an endpoint Netsuite has.  A GET request to the endpoint will give us
+    the correct REST domain for the account (even if Netsuite changes what that domain is in the future).
+*/
+function getNetsuiteURL(accountSettings, urlSettings, callback)
+{
+    //call the endpoint with GET and the Account ID
+    var requestSettings = {
+        url: 'https://rest.netsuite.com/rest/datacenterurls?' + qs.stringify({account:accountSettings.accountId}),
+        json: true,
+        method: "GET"
+    }
+    request(requestSettings, function(error, response, body)
+    {
+        var has_error = false;
+
+        //occasionally there is a Network error that we have to catch
+        /* istanbul ignore if  */      //but we also have to ignore it in code coverage because it's really hard to test
+        if(error)
+        {
+            has_error = true;
+        }
+        //if there wasn't a network error...
+        else
+        {
+            //check and see if we had a Netsuite body error
+            /* istanbul ignore next  */      //again, we have to ignore this in code coverage because it's hard to test (this one might even never happen due to the way the endpoint works actually)
+            if(body.error && body.error.code)
+            {
+                has_error = true;
+            }
+        }
+
+        //next, prepare to design a URL
+        var urlToCall;
+
+        //if there was an error
+        /* istanbul ignore if  */      //because it's so hard to get either of the errors above, we have to ignore this section in code coverage as well
+        if(has_error)
+        {
+            //we need to create the URL string manually
+            //we can do this by...
+
+            if(urlSettings.url)                                     //using the URL provided to us
+            {
+                urlToCall = urlSettings.url;
+            }
+            else if(urlSettings.script && urlSettings.deployment)   //or given a {script, deployment}, and {accountId}, designing the URL from scratch
+            {
+                urlToCall = 'https://' + accountSettings.accountId + '.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=' + urlSettings.script + '&deploy=' + urlSettings.deployment;
+            }
+        }
+        //if there was no error (the call was succesful)
+        else
+        {
+            //get the rest domain from the endpoint
+            urlToCall = body.restDomain + "/app/site/hosting/restlet.nl";
+
+            /* istanbul ignore else  */     //here we have an if, else if, and then skip the else.  It's impossible to reach that else, so we skip it in code coverage.
+            if(urlSettings.url)                                     //if a URL was provided, we need to get the search paramaters, and append them to our REST domain
+            {
+                var urlObj = url.parse(urlSettings.url);
+                urlToCall += urlObj.search;
+            }
+            else if(urlSettings.script && urlSettings.deployment)   //if a {script, deployment}, was provided, we can append those instead
+            {
+                urlToCall += '?script=' + urlSettings.script + '&deploy=' + urlSettings.deployment;
+            }
+        }
+
+        //now that we have the URL, we can give it to the callback
+        callback(urlToCall);
+    });
+}
+
+/*
+    GET DATA FROM NETSUITE
+
+    We use this method to normalize the Netsuite Restlet call.  Mainly, we want to get the error data in the
+    correct format.  Besies that, there isn't much else that's important to this.
+*/
+function getDataFromNetsuite(requestSettings, method, callback)
+{
+    //make the call to the Restlet
+    request(requestSettings, function(error, response, body)
+    {
+        //there are two types of errors we can recieve, Network errors, and Netsuite errors
+
+        //for network errors...
+        /* istanbul ignore if  */      //we can't simulate a Network error, so we have to ignore this in code coverage
+        if(error)
+        {
+            var error_message = actual_error.message || JSON.stringify(actual_error);
+            callback(error, error_message);
+        }
+        //if there isn't a network error...
+        else
+        {
+            //we need to get the body
+            var actual_body = body;
+
+            if(actual_body != '' && (method == "GET" || method == "DELETE"))    //for GET and DELETE, we need to parse the data form a string
+            {
+                actual_body = JSON.parse(actual_body);
+            }
+
+            //if there's a Netsuite error, call it back
+            if(actual_body.error && actual_body.error.code)
+            {
+                var actual_error = actual_body.error;
+                callback(actual_error, actual_error.code);
+            }
+            //otherwise call the body back
+            else
+            {
+                callback(undefined, undefined, actual_body);
+            }
+        }
+    });
 }
