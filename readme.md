@@ -49,12 +49,12 @@ myInvoices.get({id: '12345'}, function(error, body)
 });
 
 ```
-That may look a bit intimidating, but trust me, it's not.  [Here is a tutorial on how to set up OAuth with Netsuite](./TUTORIAL.md), which makes things much easier, even if you aren't familiar with OAuth.
+That may look a bit intimidating, but trust me, it's not.  [Here is a tutorial on how to set up OAuth with Netsuite](./tutorial.md), which makes things much easier, even if you aren't familiar with OAuth.
 
 ## Getting Started
 ### Authorization
 
-First, ensure that you have [set up your Netsuite environment for OAuth or NLAuth and created your script](./TUTORIAL.md)
+First, ensure that you have [set up your Netsuite environment for OAuth or NLAuth and created your script](./tutorial.md)
 
 In order to create a connection to Netsuite, you need to provide some account settings.
 

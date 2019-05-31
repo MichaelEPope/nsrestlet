@@ -1,6 +1,10 @@
 # Change Log for nsrestlet
 
-## 2.0.0  (WIP, not in NPM yet)
+# 2.0.1
+
+Updated a broken link in the readme.  No code changes.
+
+## 2.0.0
 ### Updated the `oauth-1.0a` module from version `1.0.1` to version `2.2.5`.
 This required a breaking change, as `crypto` is no longer built in to oauth-1.0a and is instead supplied
 by Node.JS (which is better for security).  In rare situations, Node.JS may be built without `crypto`,
